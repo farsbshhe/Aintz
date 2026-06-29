@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OS Nostalgia Ultimate</title>
+    <title>OS Nostalgia Ultimate Cloud Edition</title>
     <style>
         * {
             box-sizing: border-box; margin: 0; padding: 0;
@@ -15,13 +15,19 @@
         
         .phone-container {
             width: 375px; height: 812px;
-            background: linear-gradient(135deg, #1b3a57, #386b99);
+            background: #222;
             border: 12px solid #0d0d0d; border-radius: 40px;
             position: relative; box-shadow: 0px 20px 50px rgba(0,0,0,0.6); overflow: hidden;
         }
         @media (max-width: 450px) { .phone-container { width: 100vw; height: 100vh; border: none; border-radius: 0; } }
 
-        .status-bar { height: 25px; background: rgba(0, 0, 0, 0.4); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; color: white; font-size: 12px; position: absolute; top: 0; width: 100%; z-index: 100; }
+        /* الخلفية الديناميكية */
+        .phone-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center; z-index: 1;
+        }
+
+        .status-bar { height: 25px; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; color: white; font-size: 11px; position: absolute; top: 0; width: 100%; z-index: 100; }
         
         /* بانر الإشعارات */
         .notification-banner {
@@ -35,462 +41,772 @@
         .notif-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-weight: bold; color: white; font-size: 16px; margin-left: 10px; }
         .notif-body { flex: 1; display: flex; flex-direction: column; }
         .notif-title { font-size: 12px; font-weight: bold; color: #111; }
-        .notif-text { font-size: 11px; color: #555; margin-top: 2px; }
+        .notif-text { font-size: 11px; color: #555; }
 
-        /* الشاشة الرئيسية */
-        .home-screen { padding-top: 45px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding-left: 15px; padding-right: 15px; }
+        /* شاشة الترحيب والإعداد لأول مرة */
+        .setup-screen { position: absolute; top:0; left:0; width:100%; height:100%; background: #f4f4f7; z-index: 999; display: flex; flex-direction: column; padding: 40px 20px; color: #333; }
+        .setup-title { font-size: 26px; font-weight: bold; text-align: center; margin-bottom: 20px; color: #000; }
+        .setup-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .setup-input { width: 100%; padding: 10px; margin-top: 8px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; text-align: center; }
+        .setup-btn { width: 100%; padding: 12px; background: #007aff; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
+
+        /* الشاشة الرئيسية والأيقونات */
+        .home-screen { position: relative; z-index: 2; padding-top: 45px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; padding-left: 15px; padding-right: 15px; }
         .app-icon { display: none; flex-direction: column; align-items: center; cursor: pointer; }
         .app-icon.visible { display: flex; }
-        
         .app-icon .icon-shape {
             width: 60px; height: 60px; border-radius: 14px; display: flex; justify-content: center; align-items: center;
-            font-weight: bold; color: white; font-size: 22px; box-shadow: 0px 4px 8px rgba(0,0,0,0.4); position: relative; overflow: hidden;
+            font-weight: bold; color: white; font-size: 22px; box-shadow: 0px 4px 8px rgba(0,0,0,0.3); position: relative; overflow: hidden;
         }
-        .app-icon .icon-shape::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 50%; background: linear-gradient(to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0.05)); }
-        .app-name { color: white; font-size: 11px; margin-top: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.9); text-align: center; }
+        .app-icon .icon-shape::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 50%; background: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(255,255,255,0.02)); }
+        .app-name { color: white; font-size: 11px; margin-top: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 65px; }
 
-        .bg-ffm { background: linear-gradient(#2c2c2c, #111) !important; border: 1px solid #3c3c3c; }
+        /* ألوان أيقونات نظام التشغيل الكلاسيكي */
+        .bg-ffm { background: linear-gradient(#2d3e50, #1a252f) !important; border: 1px solid #34495e; }
         .bg-aynts { background: linear-gradient(#4ba2e4, #0d7ec7) !important; }
-        .bg-store { background: linear-gradient(#54b4eb, #1279cb) !important; }
-        .bg-camera { background: linear-gradient(#444, #222) !important; }
+        .bg-phone { background: linear-gradient(#2ecc71, #27ae60) !important; }
+        .bg-camera { background: linear-gradient(#555, #222) !important; }
         .bg-gallery { background: linear-gradient(#ffdb4d, #ffa600) !important; }
+        .bg-store { background: linear-gradient(#54b4eb, #1279cb) !important; }
         .bg-settings { background: linear-gradient(#b1b8be, #78828a) !important; }
+        .bg-trnts { background: linear-gradient(#e74c3c, #c0392b) !important; }
 
-        /* النوافذ */
+        /* النوافذ العائمة للتطبيقات */
         .app-window { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ededed; z-index: 5; display: none; flex-direction: column; padding-top: 25px; }
-        .window-header { background: linear-gradient(#f6f6f6, #d1d1d1); height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-bottom: 1px solid #b3b3b3; color: #333; }
-        .window-content { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; position: relative; }
+        .window-header { background: linear-gradient(#f6f6f6, #d1d1d1); height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-bottom: 1px solid #b3b3b3; color: #333; font-size: 14px; position: relative; }
+        .window-content { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; background: #f0f0f0; }
 
-        /* الكيبورد الافتراضي الموحد للنظام */
-        .system-keyboard-box { background: #1a1a1a; padding: 5px; border-radius: 12px; margin-top: auto; display: none; }
+        /* واجهة BBM / FFM الكلاسيكية تماماً */
+        .bbm-profile-bar { background: #2c3e50; color: white; padding: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 12px; border-bottom: 1px solid #34495e; }
+        .bbm-mood-select { background: #34495e; color: white; border: none; font-size: 11px; padding: 2px; border-radius: 4px; }
+        .bbm-tabs { display: flex; background: #1a252f; height: 40px; border-top: 1px solid #34495e; }
+        .bbm-tab { flex:1; color: #8a99a6; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size: 11px; cursor: pointer; }
+        .bbm-tab.active { color: white; background: #2c3e50; font-weight: bold; }
+        .bb-chat-box { flex: 1; background: #e6ebf0; padding: 8px; overflow-y: auto; }
+        .chat-msg { background: #fff; padding: 8px; border-radius: 6px; margin-bottom: 6px; font-size: 12px; border: 1px solid #cbd6e2; position: relative; word-break: break-all; }
+        .chat-msg .del-btn { position: absolute; left: 5px; top: 5px; color: #e74c3c; font-size: 10px; cursor: pointer; font-weight: bold; }
+
+        /* واجهة تويتر / أينتس الكلاسيكية */
+        .twitter-header { background: #55acee; color: white; padding: 8px; text-align: center; font-weight: bold; font-size: 13px; }
+        .tweet-box { background: white; border: 1px solid #e1e8ed; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 12px; position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .tweet-box .del-tweet { position: absolute; left: 8px; top: 8px; color: #e74c3c; cursor: pointer; font-size: 10px; font-weight: bold; }
+
+        /* تطبيق الاتصال والمكالمات */
+        .dialer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 240px; margin: 0 auto; }
+        .dial-btn { width: 60px; height: 60px; border-radius: 50%; background: #fff; border: 1px solid #ccc; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; cursor: pointer; color: #333; }
+        .dial-btn:active { background: #ddd; }
+        .call-screen-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(44, 62, 80, 0.95); color: white; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 150; }
+
+        /* الكاميرا الحقيقية */
+        .video-preview { width: 100%; flex:1; background: black; object-fit: cover; border-radius: 8px; }
+        .flash-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background:white; opacity:0; pointer-events:none; z-index:99; transition: opacity 0.1s ease; }
+
+        /* معرض الصور الفعلي */
+        .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+        .gallery-photo-box { position: relative; width: 100%; height: 95px; }
+        .gallery-img-render { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; cursor: pointer; border: 1px solid #ddd; }
+        .gallery-img-render.selected { border: 3px solid #007aff; }
+        .photo-del-btn { position: absolute; top:2px; left:2px; background:rgba(231,76,60,0.9); color:white; border:none; border-radius:50%; width:18px; height:18px; font-size:10px; cursor:pointer; font-weight: bold; }
+
+        /* الكيبورد الافتراضي */
+        .system-keyboard-box { background: #1a1a1a; padding: 5px; display: none; border-top: 1px solid #333; }
         .system-keyboard { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; }
         .sys-key { background: linear-gradient(#3a3a3a, #1f1f1f); color: #fff; text-align: center; padding: 10px 0; font-size: 13px; border-radius: 5px; border-bottom: 2px solid #000; cursor: pointer; }
-        .sys-key:active { background: #000; }
         .sys-utils { display: flex; gap: 4px; margin-top: 4px; }
-        .sys-btn { flex: 1; background: #444; color: white; border: none; padding: 8px 0; border-radius: 5px; font-size: 11px; cursor: pointer; }
+        .sys-btn { flex: 1; background: #444; color: white; border: none; padding: 8px 0; border-radius: 5px; font-size: 11px; text-align: center; cursor: pointer; }
 
-        /* الشات والمحتوى */
-        .bb-chat-box { flex: 1; background: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 10px; overflow-y: auto; margin-bottom: 5px; }
-        .rendered-img { width: 100%; max-height: 120px; object-fit: cover; border-radius: 6px; margin-top: 5px; }
+        .custom-input-box { width: 100%; min-height: 35px; border: 1px solid #ccc; padding: 6px; font-size: 12px; background: white; border-radius: 4px; margin-bottom: 5px; cursor: text; color: #333; text-align: right; }
+        .setting-row { background: white; padding: 10px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #333; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 
-        /* واجهة أينتس */
-        .aynts-composer { background: white; padding: 8px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 10px; }
-        .custom-input-box { width: 100%; min-height: 35px; border: 1px solid #eee; padding: 5px; font-size: 13px; color: #222; background: #fafafa; border-radius: 4px; cursor: pointer; }
-        .tweet-box { background: white; border: 1px solid #ddd; padding: 10px; border-radius: 8px; margin-bottom: 8px; }
-
-        /* واجهة الكاميرا القديمة */
-        .camera-view { width: 100%; flex: 1; background: #000; position: relative; border-radius: 8px; overflow: hidden; display: flex; justify-content: center; align-items: center; }
-        .camera-lens { width: 100%; height: 100%; background: linear-gradient(45deg, #2c3e50, #000000); filter: blur(1.5px) contrast(1.2) brightness(0.9); position: relative; } /* جودة مخفضة */
-        .camera-lens::after { content: ''; position: absolute; width: 100%; height: 100%; background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.4)); }
-        .flash-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: white; opacity:0; transition: opacity 0.1s; pointer-events: none; }
-        .camera-controls { height: 70px; display: flex; justify-content: space-around; align-items: center; background: #111; margin-top: 5px; border-radius: 8px; }
-        .cam-btn { background: white; border: none; padding: 10px; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; font-weight: bold; }
-
-        /* معرض الصور */
-        .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
-        .gallery-item { width: 100%; height: 90px; border-radius: 4px; background-size: cover; background-position: center; border: 1px solid #ccc; cursor: pointer; filter: blur(0.5px) contrast(1.1); }
-        .gallery-item.selected { border: 3px solid #0d7ec7; }
-
-        /* المتجر والإعدادات */
-        .store-item { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .setting-row { background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; color: #333; font-size: 13px; }
-
-        /* الزر العائم */
-        .assistive-touch { width: 50px; height: 50px; background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 12px; position: absolute; bottom: 40px; left: 30px; z-index: 999; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-        .assistive-touch .inner-circle { width: 26px; height: 26px; background: rgba(255, 255, 255, 0.6); border-radius: 50%; }
+        /* زر هوم الدائري الثابت تماماً */
+        .assistive-touch { width: 46px; height: 46px; background: rgba(0, 0, 0, 0.6); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; position: absolute; bottom: 25px; left: 25px; z-index: 999; cursor: pointer; display: flex; justify-content: center; align-items: center; pointer-events: auto; }
+        .assistive-touch .inner-circle { width: 22px; height: 22px; background: rgba(255, 255, 255, 0.7); border-radius: 50%; }
+        
+        /* قفل النظام عند امتلاء الذاكرة */
+        .storage-lock { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 20px; }
     </style>
 </head>
 <body>
 
     <div class="phone-container" id="phone">
+        <div class="phone-bg" id="globalBg" style="background-image: url('https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=375');"></div>
         
         <div class="status-bar">
             <span id="current-time">00:00</span>
-            <span id="battery-level">🔋 95%</span>
+            <span id="storage-status-bar" style="color:#ffcc00; font-weight: bold;">512.00 MB</span>
+            <span>🔋 100%</span>
         </div>
 
-        <!-- الإشعار المنبثق -->
-        <div class="notification-banner" id="notifBanner">
-            <div class="notif-icon" id="notifIcon">F</div>
-            <div class="notif-body">
-                <div class="notif-title" id="notifTitle">نظام التشغيل</div>
-                <div class="notif-text" id="notifText">رسالة جديدة...</div>
+        <div class="storage-lock" id="storageLockView">
+            <h2 style="color:#e74c3c;">⚠️ الذاكرة ممتلئة تماماً!</h2>
+            <p style="font-size:13px; margin-top:10px; line-height:1.6;">لقد استهلكت مساحة الجوال الكاملة (512.00 MB).<br>يرجى التوجه فوراً وحذف تغريدات، رسائل FFM، أو صور من المعرض لتفريغ المساحة.</p>
+            <button onclick="dismissLockAndGoToGallery()" style="margin-top:20px; padding:8px 15px; background:#007aff; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">تنظيف المعرض الآن</button>
+        </div>
+
+        <div class="setup-screen" id="setupScreen" style="display:none;">
+            <div class="setup-title" style="margin-top:20px;">مرحباً بك</div>
+            <div class="setup-card">
+                <p style="font-size:12px; text-align:center; color:#666; margin-bottom:15px;">قم بتنشيط جهازك وحساب الـ iCloud الخاص بك</p>
+                
+                <label style="font-size:11px; font-weight:bold;">الاسم الكامل:</label>
+                <input class="setup-input" id="setupName" type="text" placeholder="أدخل اسمك الفعلي">
+                
+                <label style="font-size:11px; font-weight:bold;">رقم حساب البريد (12 رقم بالضبط):</label>
+                <input class="setup-input" id="setupIcloudId" type="text" maxlength="12" placeholder="مثال: 123456789012">
+                
+                <label style="font-size:11px; font-weight:bold;">كلمة المرور (12 رقم بالضبط):</label>
+                <input class="setup-input" id="setupPassword" type="password" maxlength="12" placeholder="مثال: 987654321098">
+                
+                <button class="setup-btn" onclick="handleSystemRegistration()">إنشاء حساب وتنشيط الجوال</button>
             </div>
         </div>
 
-        <!-- الشاشة الرئيسية -->
+        <div class="call-screen-overlay" id="callScreen">
+            <div style="font-size:24px; font-weight:bold; margin-bottom:10px;" id="callScreenName">جاري الاتصال...</div>
+            <div style="font-size:14px; color:#bdc3c7;" id="callScreenNumber">0500000000</div>
+            <div style="margin-top:40px; font-size:18px; animation: pulse 1s infinite;">Calling... 📞</div>
+            <button onclick="endCurrentCall()" style="margin-top:100px; padding:12px 30px; background:#e74c3c; color:white; border:none; border-radius:25px; font-weight:bold; cursor:pointer;">إنهاء المكالمة</button>
+        </div>
+
+        <div class="notification-banner" id="notifBanner">
+            <div class="notif-icon" id="notifIcon">N</div>
+            <div class="notif-body">
+                <div class="notif-title" id="notifTitle" style="font-weight:bold; font-size:12px;">النظام</div>
+                <div class="notif-text" id="notifText" style="font-size:11px; color:#555;">رسالة جديدة...</div>
+            </div>
+        </div>
+
         <div class="home-screen" id="homeGrid">
-            <div class="app-icon" id="icon-ffm" onclick="openApp('app-ffm')"><div class="icon-shape bg-ffm">F</div><div class="app-name">FFM</div></div>
-            <div class="app-icon" id="icon-aynts" onclick="openApp('app-aynts')"><div class="icon-shape bg-aynts">ت</div><div class="app-name">أينتس</div></div>
+            <div class="app-icon" id="icon-ffm" onclick="openApp('app-ffm')"><div class="icon-shape bg-ffm">BBM</div><div class="app-name">FFM</div></div>
+            <div class="app-icon" id="icon-aynts" onclick="openApp('app-aynts')"><div class="icon-shape bg-aynts">🐦</div><div class="app-name">أينتس</div></div>
+            <div class="app-icon visible" id="icon-phone" onclick="openApp('app-phone')"><div class="icon-shape bg-phone">📞</div><div class="app-name">الهاتف</div></div>
             <div class="app-icon visible" id="icon-camera" onclick="openApp('app-camera')"><div class="icon-shape bg-camera">📷</div><div class="app-name">الكاميرا</div></div>
             <div class="app-icon visible" id="icon-gallery" onclick="openApp('app-gallery')"><div class="icon-shape bg-gallery">🖼️</div><div class="app-name">المعرض</div></div>
             <div class="app-icon visible" id="icon-store" onclick="openApp('app-store')"><div class="icon-shape bg-store">A</div><div class="app-name">المتجر</div></div>
             <div class="app-icon visible" id="icon-settings" onclick="openApp('app-settings')"><div class="icon-shape bg-settings">⚙️</div><div class="app-name">الإعدادات</div></div>
+            <div class="app-icon" id="icon-trnts" onclick="alert('مرحباً بك في موقع ترنتس الكلاسيكي المضاف!')"><div class="icon-shape bg-trnts" style="background-image:url('https://images.squarespace-cdn.com/content/v1/5ba1542f7c01bbb57b320d7f/1545163013876-CHMCHM636N7Q4O4S89B0/T_Logo_Red_Hex.png'); background-size:cover;"></div><div class="app-name">ترنتس</div></div>
         </div>
 
-        <!-- تطبيق FFM -->
         <div id="app-ffm" class="app-window">
-            <div class="window-header">FFM Chat</div>
-            <div class="window-content">
-                <div class="bb-chat-box" id="bb-screen"></div>
-                <div class="custom-input-box" id="ffmInputBox" onclick="activateKeyboard('ffm')">اضغط لكتابة رسالة...</div>
-                <div id="ffmSelectedImgStatus" style="font-size:11px; color:green; margin:3px; display:none;">تم اختيار صورة لإرسالها!</div>
-                
-                <!--utils-->
-                <div style="display:flex; gap:5px; margin-top:5px;">
-                    <button onclick="openGalleryPicker('ffm')" style="padding:4px; font-size:11px;">🖼️ اختيار صورة</button>
-                    <button onclick="sendFFM()" style="padding:4px 10px; background:green; color:white; border:none; border-radius:4px; font-size:11px; margin-right:auto;">إرسال</button>
-                    <button onclick="handlePress('PING')" style="padding:4px; background:#0d7ec7; color:white; border:none; border-radius:4px; font-size:11px;">PING</button>
+            <div class="bbm-profile-bar">
+                <div style="font-weight:bold;" id="bbmUserLabel">PIN: LOADING</div>
+                <select class="bbm-mood-select" id="bbmMood" onchange="updateBbmMoodState()">
+                    <option value="🟢 متصل">🟢 متصل</option>
+                    <option value="🔴 مشغول">🔴 مشغول</option>
+                    <option value="📱 يكتب...">📱 يكتب...</option>
+                </select>
+            </div>
+            <div class="window-content" style="padding:0;">
+                <div class="bb-chat-box" id="bbmChatScreen"></div>
+                <div style="padding:8px; background:#fff; border-top:1px solid #ccc;">
+                    <div class="custom-input-box" id="ffmInputBox" onclick="activateKeyboard('ffm')">اكتب رسالة BBM...</div>
+                    <div id="ffmSelectedImgStatus" style="font-size:11px; color:green; display:none; margin-bottom:4px;">تم إرفاق لقطة من الاستوديو!</div>
+                    <div style="display:flex; gap:5px;">
+                        <button onclick="openGalleryPicker('ffm')" style="font-size:11px; padding:4px 8px;">🖼️ صورة</button>
+                        <button onclick="sendBbmMessageCloud()" style="background:green; color:white; border:none; padding:4px 12px; border-radius:4px; font-size:11px; margin-right:auto; font-weight:bold; cursor:pointer;">إرسال</button>
+                        <button onclick="triggerBbmPingBlast()" style="background:#b22222; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">PING</button>
+                    </div>
+                </div>
+                <div class="bbm-tabs">
+                    <div class="bbm-tab active">💬 الدردشات</div>
+                    <div class="bbm-tab" onclick="alert('قائمة جهات اتصال BBM الكلاسيكية جاهزة!')">👥 جهات الاتصال</div>
+                    <div class="bbm-tab" onclick="alert('الموجز فارغ حالياً')">📰 الموجز</div>
                 </div>
             </div>
-            <!-- كيبورد التطبيق المدمج -->
             <div class="system-keyboard-box" id="kbd-ffm"></div>
         </div>
 
-        <!-- تطبيق أينتس -->
         <div id="app-aynts" class="app-window">
-            <div class="window-header">أينتس (تويتر)</div>
+            <div class="twitter-header">🐦 تويتر الكلاسيكي (أينتس)</div>
             <div class="window-content">
-                <div class="aynts-composer">
+                <div style="background:white; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #ccd6dd;">
                     <div class="custom-input-box" id="ayntsInputBox" onclick="activateKeyboard('aynts')">ماذا يحدث الآن؟...</div>
-                    <div id="ayntsSelectedImgStatus" style="font-size:11px; color:green; margin-top:5px; display:none;">تم إرفاق صورة من المعرض!</div>
-                    <div style="display:flex; justify-content:between; margin-top:6px; align-items:center;">
-                        <button onclick="openGalleryPicker('aynts')" style="background:none; border:none; font-size:12px; cursor:pointer;">🖼️ أرفق صورة</button>
-                        <button onclick="postTweet()" style="padding:4px 12px; background:#0d7ec7; color:white; border:none; border-radius:12px; font-size:12px; margin-right:auto;">تغريد</button>
+                    <div id="ayntsSelectedImgStatus" style="font-size:11px; color:green; display:none; margin-top:4px;">تم إرفاق صورة!</div>
+                    <div style="display:flex; justify-content:space-between; margin-top:6px; align-items:center;">
+                        <button onclick="openGalleryPicker('aynts')" style="font-size:12px; background:none; border:none; color:#55acee; cursor:pointer; font-weight:bold;">🖼️ إضافة صورة</button>
+                        <button onclick="postClassicTweetCloud()" style="background:#55acee; color:white; border:none; padding:5px 15px; border-radius:20px; font-size:11px; font-weight:bold; margin-right:auto; cursor:pointer;">تغريد</button>
                     </div>
                 </div>
-                <div id="tweets-timeline" style="flex:1; overflow-y:auto;"></div>
+                <div id="classic-tweets-timeline" style="flex:1; overflow-y:auto;"></div>
             </div>
             <div class="system-keyboard-box" id="kbd-aynts"></div>
         </div>
 
-        <!-- تطبيق الكاميرا الخلفية الفلاش -->
-        <div id="app-camera" class="app-window">
-            <div class="window-header">الكاميرا الخلفية</div>
-            <div class="window-content" style="padding:5px;">
-                <div class="camera-view">
-                    <div class="camera-lens" id="lensBg"></div>
-                    <div class="flash-overlay" id="flash"></div>
-                    <div style="position:absolute; top:10px; right:10px; color:white; font-size:10px; background:rgba(0,0,0,0.5); padding:3px; border-radius:3px;">جودة: 1.3 MP</div>
-                </div>
-                <div class="camera-controls">
-                    <button class="cam-btn" id="flashBtn" onclick="toggleFlash()" style="background:#333; color:white; font-size:12px;">⚡ إيقاف</button>
-                    <button class="cam-btn" onclick="takePhoto()" style="background:red; width:55px; height:55px;"></button>
-                    <div style="width:45px;"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- تطبيق معرض الصور -->
-        <div id="app-gallery" class="app-window">
-            <div class="window-header">معرض الصور</div>
+        <div id="app-phone" class="app-window">
+            <div class="window-header">📞 الهاتف وجهات الاتصال</div>
             <div class="window-content">
-                <div id="galleryContainer" class="gallery-grid"></div>
-                <div id="pickerActions" style="display:none; margin-top:15px; text-align:center;">
-                    <button onclick="confirmImageSelection()" style="padding:6px 15px; background:green; color:white; border:none; border-radius:4px;">تأكيد اختيار الصورة</button>
+                <div style="background:white; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #ddd;">
+                    <div style="font-size:18px; font-weight:bold; text-align:center; padding:5px; background:#eee; border-radius:4px; margin-bottom:10px; min-height:32px;" id="dialerDisplay"></div>
+                    <div class="dialer-grid">
+                        <div class="dial-btn" onclick="pressDialNum('1')">1</div>
+                        <div class="dial-btn" onclick="pressDialNum('2')">2</div>
+                        <div class="dial-btn" onclick="pressDialNum('3')">3</div>
+                        <div class="dial-btn" onclick="pressDialNum('4')">4</div>
+                        <div class="dial-btn" onclick="pressDialNum('5')">5</div>
+                        <div class="dial-btn" onclick="pressDialNum('6')">6</div>
+                        <div class="dial-btn" onclick="pressDialNum('7')">7</div>
+                        <div class="dial-btn" onclick="pressDialNum('8')">8</div>
+                        <div class="dial-btn" onclick="pressDialNum('9')">9</div>
+                        <div class="dial-btn" style="background:#e74c3c; color:white;" onclick="pressDialNum('C')">C</div>
+                        <div class="dial-btn" onclick="pressDialNum('0')">0</div>
+                        <div class="dial-btn" style="background:#2ecc71; color:white;" onclick="triggerOutgoingCall()">📞</div>
+                    </div>
+                </div>
+
+                <div style="background:white; padding:10px; border-radius:8px; border:1px solid #ddd; display:flex; flex-direction:column; gap:5px;">
+                    <h4 style="font-size:12px;">إضافة جهة اتصال جديدة:</h4>
+                    <input type="text" id="contactNameInput" placeholder="اسم جهة الاتصال" style="padding:6px; font-size:12px; border:1px solid #ccc; border-radius:4px;">
+                    <input type="text" id="contactPhoneInput" placeholder="رقم الجوال" style="padding:6px; font-size:12px; border:1px solid #ccc; border-radius:4px;">
+                    <button onclick="saveNewContactItem()" style="padding:5px; background:#007aff; color:white; border:none; border-radius:4px; font-size:12px; font-weight:bold; cursor:pointer;">حفظ جهة الاتصال</button>
+                </div>
+
+                <h4 style="font-size:12px; margin-top:10px; margin-bottom:4px;">دليل الهاتف المخزن:</h4>
+                <div id="contactsListContainer" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:4px;"></div>
+            </div>
+        </div>
+
+        <div id="app-camera" class="app-window">
+            <div class="window-header">الكاميرا الحقيقية 📷</div>
+            <div class="window-content" style="padding:0; background:black; position:relative;">
+                <video id="videoElement" autoplay playsinline class="video-preview"></video>
+                <canvas id="canvasElement" style="display:none;"></canvas>
+                <div class="flash-overlay" id="cameraFlashOverlay"></div>
+                
+                <div style="height:75px; background:#111; display:flex; justify-content:space-around; align-items:center;">
+                    <button id="cameraFlashBtn" onclick="toggleCameraFlashState()" style="background:#333; color:white; border:none; padding:8px 12px; border-radius:4px; font-size:11px; cursor:pointer;">⚡ الفلاش: مغلق</button>
+                    <button onclick="captureTruePhotoToGallery()" style="width:55px; height:55px; background:red; border:4px solid white; border-radius:50%; cursor:pointer;"></button>
+                    <div style="width:70px;"></div>
                 </div>
             </div>
         </div>
 
-        <!-- المتجر -->
+        <div id="app-gallery" class="app-window">
+            <div class="window-header">معرض الصور الفعلي</div>
+            <div class="window-content">
+                <div id="galleryGridContainer" class="gallery-grid"></div>
+                <div id="galleryPickerBar" style="display:none; margin-top:auto; padding:10px; text-align:center; background:white; border-radius:8px; box-shadow:0 -2px 10px rgba(0,0,0,0.1);">
+                    <button onclick="confirmGallerySelectionAction()" style="padding:6px 15px; background:#2ecc71; color:white; border:none; border-radius:4px; font-size:12px; font-weight:bold; cursor:pointer;">تأكيد إرفاق الصورة المحددة</button>
+                </div>
+            </div>
+        </div>
+
         <div id="app-store" class="app-window">
             <div class="window-header">متجر التطبيقات</div>
             <div class="window-content">
                 <div class="store-item">
-                    <div><b>تطبيق FFM Chat</b><div style="font-size:11px; color:#666;">BBM قديم</div></div>
-                    <button class="store-btn" id="btn-install-ffm" onclick="installApp('ffm')" style="padding:5px; font-size:12px;">تثبيت</button>
+                    <div><b>تطبيق FFM</b><br><small style="color:#777;">دردشة الـ BBM الكلاسيكية</small></div>
+                    <button id="btn-install-ffm" onclick="triggerAppInstallAction('ffm')" style="padding:5px 12px; background:#007aff; color:white; border:none; border-radius:12px; font-size:11px; font-weight:bold; cursor:pointer;">تثبيت</button>
                 </div>
                 <div class="store-item">
-                    <div><b>تطبيق أينتس</b><div style="font-size:11px; color:#666;">تويتر قديم</div></div>
-                    <button class="store-btn" id="btn-install-aynts" onclick="installApp('aynts')" style="padding:5px; font-size:12px;">تثبيت</button>
+                    <div><b>تطبيق أينتس</b><br><small style="color:#777;">منصة تويتر بالزمن الجميل</small></div>
+                    <button id="btn-install-aynts" onclick="triggerAppInstallAction('aynts')" style="padding:5px 12px; background:#007aff; color:white; border:none; border-radius:12px; font-size:11px; font-weight:bold; cursor:pointer;">تثبيت</button>
                 </div>
             </div>
         </div>
 
-        <!-- الإعدادات والمساحة -->
         <div id="app-settings" class="app-window">
-            <div class="window-header">الإعدادات</div>
+            <div class="window-header">الإعدادات النظام</div>
             <div class="window-content">
+                <div style="background:white; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #ddd; text-align:center;">
+                    <div style="width:50px; height:50px; background:#ccc; border-radius:50%; margin:0 auto 5px; display:flex; justify-content:center; align-items:center; font-size:20px; font-weight:bold; color:#fff;" id="profileAvatarLetter">U</div>
+                    <h3 style="font-size:14px;" id="profileNameLabel">اسم المستخدم</h3>
+                    <p style="font-size:11px; color:#777;" id="profileIcloudLabel">iCloud: 000000000000</p>
+                    <p style="font-size:11px; color:#007aff; font-weight:bold; margin-top:3px;" id="profilePhoneLabel">رقم جوالك: 05XXXXXXXX</p>
+                </div>
+
                 <div class="setting-row">
-                    <span>مساحة التخزين الإجمالية</span>
-                    <span style="font-weight:bold; color:blue;">1.00 GB</span>
+                    <span>مساحة التخزين الكلية للجوال</span>
+                    <span style="font-weight:bold;">512.00 MB</span>
                 </div>
                 <div class="setting-row">
-                    <span>المساحة المتوفرة الآن</span>
-                    <span id="freeSpaceLabel" style="font-weight:bold; color:green;">1024.00 MB</span>
+                    <span>الذاكرة المتوفرة حالياً</span>
+                    <span id="freeStorageLabel" style="font-weight:bold; color:green;">512.00 MB</span>
                 </div>
                 <div class="setting-row">
-                    <span>صوت نغمة الإشعارات</span>
-                    <select id="notifSoundSelect" onchange="playOldNotifSound()" style="padding:3px;">
-                        <option value="classic">تن تن (ناعم)</option>
-                        <option value="ring">رنين قديم</option>
-                        <option value="alert">تنبيه حاد</option>
+                    <span>خلفية الشاشة الرئيسية</span>
+                    <select onchange="changeSystemWallpaperPath(this.value)" style="padding:3px; font-size:11px;">
+                        <option value="https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=375">الافتراضية الملونة</option>
+                        <option value="https://i.imgur.com/Kdf9D7Z.jpeg">خلفية تلال Windows XP 🏞️</option>
+                        <option value="https://i.imgur.com/R38Yf7X.jpeg">قطرات ماء iOS 4 💧</option>
                     </select>
                 </div>
-                <button onclick="localStorage.clear(); location.reload();" style="margin-top:auto; padding:8px; background:#731a1a; color:white; border:none; border-radius:5px; font-size:12px;">تهيئة كاملة للجوال ⚠️</button>
+
+                <div style="background:white; padding:10px; border-radius:8px; border:1px solid #ddd; margin-top:5px; display:flex; flex-direction:column; gap:5px;">
+                    <h4 style="font-size:12px;">إدارة ملفات تعريف المواقع الشاشة:</h4>
+                    <button onclick="enableTrntsShortcutOnHomeScreen()" style="padding:6px; background:#e74c3c; color:white; border:none; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">إضافة موقع ترنتس للشاشة الرئيسية ➕</button>
+                </div>
+
+                <button onclick="localStorage.clear(); location.reload();" style="margin-top:auto; padding:8px; background:#c0392b; color:white; border:none; border-radius:5px; font-size:11px; font-weight:bold; cursor:pointer;">إعادة ضبط وتهيئة المصنع الجوال ⚠️</button>
             </div>
         </div>
 
-        <!-- الزر العائم AssistiveTouch -->
-        <div class="assistive-touch" id="assistiveTouch" onclick="goHome()">
+        <div class="assistive-touch" id="homeButtonStatic" onclick="triggerGoHomeView()">
             <div class="inner-circle"></div>
         </div>
 
     </div>
 
     <script>
-        let audioCtx = null;
-        function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        // المتغيرات المحلية لتخزين وحفظ الحالة محلياً بدلاً من تعقيد الفايربيس من أول مرة حتى نضبط الهيكل كامل
+        let userSession = JSON.parse(localStorage.getItem('sysUserSession')) || null;
+        let installedApps = JSON.parse(localStorage.getItem('sysInstalledApps')) || { ffm: false, aynts: false, trnts: false };
+        let localGallery = JSON.parse(localStorage.getItem('sysLocalGallery')) || [];
+        let localTweets = JSON.parse(localStorage.getItem('sysLocalTweets')) || [];
+        let localBbmChats = JSON.parse(localStorage.getItem('sysLocalBbmChats')) || [];
+        let localContacts = JSON.parse(localStorage.getItem('sysLocalContacts')) || [
+            { name: "الدعم الفني", phone: "900" }
+        ];
 
-        function playClickSound() {
-            initAudio(); if(!audioCtx) return;
-            let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
-            osc.type = 'triangle'; osc.frequency.setValueAtTime(140, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.15, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.02);
-            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.02);
+        let activeAppScope = "";
+        let currentTypingText = "";
+        let isCameraFlashOn = false;
+        let selectedGalleryImgBase64 = "";
+        let currentPickerTargetApp = "";
+        let dialNumberBuffer = "";
+
+        const maxStorageMB = 512.00; // الذاكرة المحددة بنصف قيقا
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initSystemClockTimer();
+            checkUserAuthFlowState();
+            initCameraStream();
+        });
+
+        function initSystemClockTimer() {
+            const updateClock = () => {
+                const now = new Date();
+                let h = now.getHours(); let m = now.getMinutes();
+                document.getElementById('current-time').innerText = (h<10?'0':'')+h + ':' + (m<10?'0':'')+m;
+            };
+            setInterval(updateClock, 1000); updateClock();
         }
 
-        function playOldNotifSound() {
-            initAudio(); if(!audioCtx) return;
-            let type = document.getElementById('notifSoundSelect').value;
-            let now = audioCtx.currentTime;
-            let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            
-            if(type === 'classic') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(523, now); osc.frequency.setValueAtTime(659, now + 0.1);
-                gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-            } else if(type === 'ring') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(800, now); osc.frequency.setValueAtTime(400, now + 0.15);
-                gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        function checkUserAuthFlowState() {
+            if(!userSession) {
+                document.getElementById('setupScreen').style.display = 'flex';
             } else {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(250, now);
-                gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                document.getElementById('setupScreen').style.display = 'none';
+                
+                // ملء بيانات البروفايل بالإعدادات
+                document.getElementById('profileNameLabel').innerText = userSession.name;
+                document.getElementById('profileIcloudLabel').innerText = "iCloud ID: " + userSession.icloudId;
+                document.getElementById('profileAvatarLetter').innerText = userSession.name.charAt(0).toUpperCase();
+                document.getElementById('profilePhoneLabel').innerText = "رقم جوالك: " + userSession.generatedPhone;
+                document.getElementById('bbmUserLabel').innerText = "PIN: " + userSession.icloudId.slice(0,6);
+
+                updateHomeScreenIconsState();
+                calculateSystemStorageUsage();
             }
-            osc.start(); osc.stop(now + 0.4);
         }
 
-        // متغيرات النظام والمساحة
-        let installedApps = JSON.parse(localStorage.getItem('installedApps')) || { ffm: false, aynts: false };
-        let tweets = JSON.parse(localStorage.getItem('tweets')) || [{ author: "@Fares", text: "تم تشغيل نظام الكيبورد الموحد بنجاح! 🚀", img: "" }];
-        let galleryImages = JSON.parse(localStorage.getItem('galleryImages')) || [];
-        let systemStorage = 1024.00; // 1GB بالـ MB
+        // معالجة تسجيل حساب الآيكلاود لأول مرة مع الـ 12 رقم
+        function handleSystemRegistration() {
+            let name = document.getElementById('setupName').value.trim();
+            let id = document.getElementById('setupIcloudId').value.trim();
+            let pass = document.getElementById('setupPassword').value.trim();
 
-        function saveState() {
-            localStorage.setItem('installedApps', JSON.stringify(installedApps));
-            localStorage.setItem('tweets', JSON.stringify(tweets));
-            localStorage.setItem('galleryImages', JSON.stringify(galleryImages));
-            updateStorageDisplay();
+            if(!name) { alert("يرجى إدخال اسمك أولاً!"); return; }
+            if(id.length !== 12 || isNaN(id)) { alert("خطأ: يجب أن يكون رقم حساب البريد 12 رقماً بالضبط!"); return; }
+            if(pass.length !== 12 || isNaN(pass)) { alert("خطأ: يجب أن تكون كلمة المرور 12 رقماً بالضبط!"); return; }
+
+            // توليد رقم جوال عشوائي
+            let randomDigits = Math.floor(10000000 + Math.random() * 90000000);
+            let generatedPhone = "05" + randomDigits;
+
+            userSession = { name: name, icloudId: id, password: pass, generatedPhone: generatedPhone };
+            localStorage.setItem('sysUserSession', JSON.stringify(userSession));
+            
+            triggerSystemNotification("نظام iCloud", "تم تنشيط جهازك الجديد بنجاح وحفظ الملف السحابي!", "bg-settings");
+            checkUserAuthFlowState();
         }
 
-        function updateStorageDisplay() {
-            // كل صورة تأخذ حوالي 2.4MB وكل تطبيق 15MB محاكاة حقيقية
-            let used = galleryImages.length * 2.42;
-            if(installedApps.ffm) used += 14.5;
-            if(installedApps.aynts) used += 18.2;
-            let free = (systemStorage - used).toFixed(2);
-            document.getElementById('freeSpaceLabel').innerText = free + " MB";
+        function updateHomeScreenIconsState() {
+            if(installedApps.ffm) {
+                document.getElementById('icon-ffm').classList.add('visible');
+                document.getElementById('btn-install-ffm').innerText = "مثبت";
+            }
+            if(installedApps.aynts) {
+                document.getElementById('icon-aynts').classList.add('visible');
+                document.getElementById('btn-install-aynts').innerText = "مثبت";
+            }
+            if(installedApps.trnts) {
+                document.getElementById('icon-trnts').classList.add('visible');
+            }
         }
 
-        function updateHomeScreen() {
-            if(installedApps.ffm) { document.getElementById('icon-ffm').classList.add('visible'); document.getElementById('btn-install-ffm').innerText = "مثبت"; }
-            if(installedApps.aynts) { document.getElementById('icon-aynts').classList.add('visible'); document.getElementById('btn-install-aynts').innerText = "مثبت"; }
-            updateStorageDisplay();
+        // احتساب مساحة الذاكرة نصف قيقا بالملي بايت
+        function calculateSystemStorageUsage() {
+            // محاكاة الأحجام: كل صورة 25 ميجا بايت، كل تطبيق مثبت 30 ميجا بايت، كل شات أو تغريدة 1 ميجا بايت لضمان اختبار ملء الذاكرة
+            let photoUsage = localGallery.length * 25.0;
+            let appUsage = 0;
+            if(installedApps.ffm) appUsage += 35.0;
+            if(installedApps.aynts) appUsage += 35.0;
+            let textUsage = (localTweets.length * 1.5) + (localBbmChats.length * 1.0);
+
+            let totalUsed = photoUsage + appUsage + textUsage;
+            let freeSpace = maxStorageMB - totalUsed;
+
+            if(freeSpace <= 0) {
+                freeSpace = 0;
+                document.getElementById('storageLockView').style.display = 'flex';
+            } else {
+                document.getElementById('storageLockView').style.display = 'none';
+            }
+
+            document.getElementById('freeStorageLabel').innerText = freeSpace.toFixed(2) + " MB";
+            document.getElementById('storage-status-bar').innerText = freeSpace.toFixed(2) + " MB";
         }
 
-        function installApp(appName) {
-            playClickSound();
+        function dismissLockAndGoToGallery() {
+            document.getElementById('storageLockView').style.display = 'none';
+            openApp('app-gallery');
+        }
+
+        // تشغيل كيبورد الطيبين المخصص للنظام
+        const arabicLettersArray = ['ض','ص','ث','ق','ف','غ','ع','هـ','خ','ح','ش','س','ي','ب','ل','ا','ت','ن','م','ك','ط','ر','و','ز','د','ج','؟','!','-'];
+        
+        function buildSystemKeyboardLayout(targetContainerId) {
+            let html = `<div class="system-keyboard">`;
+            arabicLettersArray.forEach(char => {
+                html += `<div class="sys-key" onclick="typeCustomSystemKey('${char}')">${char}</div>`;
+            });
+            html += `<div class="sys-key" style="background:#c0392b;" onclick="typeCustomSystemKey('DEL')">❌</div></div>`;
+            html += `<div class="sys-utils">
+                <div class="sys-btn" style="flex:3; background:#333;" onclick="typeCustomSystemKey('SPACE')">المسافة</div>
+                <div class="sys-btn" style="background:green; font-weight:bold;" onclick="closeSystemKeyboardWindow()">تم</div>
+            </div>`;
+            document.getElementById(targetContainerId).innerHTML = html;
+        }
+
+        function activateKeyboard(scopeName) {
+            activeAppScope = scopeName;
+            document.getElementById('kbd-ffm').style.display = 'none';
+            document.getElementById('kbd-aynts').style.display = 'none';
+            
+            let targetKbdBox = document.getElementById(`kbd-${scopeName}`);
+            buildSystemKeyboardLayout(`kbd-${scopeName}`);
+            targetKbdBox.style.display = 'block';
+
+            let currentValBox = document.getElementById(`${scopeName}InputBox`);
+            if(currentValBox.innerText.includes("...")) {
+                currentTypingText = "";
+            } else {
+                currentTypingText = currentValBox.innerText;
+            }
+        }
+
+        function typeCustomSystemKey(key) {
+            if(key === 'DEL') {
+                currentTypingText = currentTypingText.slice(0, -1);
+            } else if(key === 'SPACE') {
+                currentTypingText += " ";
+            } else {
+                currentTypingText += key;
+            }
+            document.getElementById(`${activeAppScope}InputBox`).innerText = currentTypingText || "اضغط للكتابة...";
+        }
+
+        function closeSystemKeyboardWindow() {
+            document.getElementById('kbd-ffm').style.display = 'none';
+            document.getElementById('kbd-aynts').style.display = 'none';
+        }
+
+        // المتجر والتحميل
+        function triggerAppInstallAction(appName) {
             if(!installedApps[appName]) {
-                installedApps[appName] = true; saveState(); updateHomeScreen();
-                triggerBanner('تم التثبيت', 'التطبيق جاهز على الواجهة الآن.', 'bg-store', 'A');
+                installedApps[appName] = true;
+                localStorage.setItem('sysInstalledApps', JSON.stringify(installedApps));
+                updateHomeScreenIconsState();
+                calculateSystemStorageUsage();
+                triggerSystemNotification("متجر التطبيقات", "تم تثبيت التطبيق وجاري نقله للواجهة..", "bg-store");
             }
         }
 
-        function triggerBanner(title, text, bg, letter) {
+        function enableTrntsShortcutOnHomeScreen() {
+            installedApps.trnts = true;
+            localStorage.setItem('sysInstalledApps', JSON.stringify(installedApps));
+            updateHomeScreenIconsState();
+            triggerSystemNotification("الملفات التعريفية", "تمت إضافة اختصار موقع ترنتس إلى الشاشة الرئيسية!", "bg-trnts");
+        }
+
+        // تشغيل واجهة وتطبيق الكاميرا الحقيقية
+        async function initCameraStream() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+                document.getElementById('videoElement').srcObject = stream;
+            } catch (err) {
+                console.log("التحميل الفعلي لموجز الكاميرا يتطلب أذونات متصفح حية.");
+            }
+        }
+
+        function toggleCameraFlashState() {
+            isCameraFlashOn = !isCameraFlashOn;
+            document.getElementById('cameraFlashBtn').innerText = isCameraFlashOn ? "⚡ الفلاش: مفعل" : "⚡ الفلاش: مغلق";
+        }
+
+        function captureTruePhotoToGallery() {
+            const video = document.getElementById('videoElement');
+            const canvas = document.getElementById('canvasElement');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = video.videoWidth || 320;
+            canvas.height = video.videoHeight || 240;
+            
+            // رسم لقطة حية من الفيديو
+            try {
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            } catch(e) {
+                // إذا لم تعمل الكاميرا الفردية نقوم بعمل تدرج لوني كمحاكاة للالتقاط
+                ctx.fillStyle = "linear-gradient(45deg, #3498db, #2ecc71)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            if(isCameraFlashOn) {
+                document.getElementById('cameraFlashOverlay').style.opacity = "1";
+                setTimeout(() => document.getElementById('cameraFlashOverlay').style.opacity = "0", 150);
+            }
+
+            let dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+            localGallery.unshift(dataUrl);
+            localStorage.setItem('sysLocalGallery', JSON.stringify(localGallery));
+            
+            calculateSystemStorageUsage();
+            triggerSystemNotification("الكاميرا", "تم التقاط صورة حقيقية وحفظها بالمعرض!", "bg-camera");
+        }
+
+        // المعرض والارفاق
+        function renderGalleryContainerGrid() {
+            const grid = document.getElementById('galleryGridContainer');
+            grid.innerHTML = "";
+            if(localGallery.length === 0) {
+                grid.innerHTML = `<p style="grid-column:span 3; font-size:12px; color:#777; text-align:center; padding:20px;">المعرض فارغ، التقط بعض الصور بالكاميرا.</p>`;
+                return;
+            }
+
+            localGallery.forEach((imgData, index) => {
+                let box = document.createElement('div');
+                box.className = "gallery-photo-box";
+                box.innerHTML = `
+                    <img src="${imgData}" class="gallery-img-render" onclick="selectGalleryItemElement(this, '${imgData}')">
+                    <button class="photo-del-btn" onclick="deleteGalleryItemByIndex(${index})">×</button>
+                `;
+                grid.appendChild(box);
+            });
+        }
+
+        function selectGalleryItemElement(element, data) {
+            document.querySelectorAll('.gallery-img-render').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedGalleryImgBase64 = data;
+        }
+
+        function deleteGalleryItemByIndex(index) {
+            localGallery.splice(index, 1);
+            localStorage.setItem('sysLocalGallery', JSON.stringify(localGallery));
+            renderGalleryContainerGrid();
+            calculateSystemStorageUsage();
+        }
+
+        function openGalleryPicker(targetAppName) {
+            currentPickerTargetApp = targetAppName;
+            openApp('app-gallery');
+            document.getElementById('galleryPickerBar').style.display = "block";
+        }
+
+        function confirmGallerySelectionAction() {
+            if(!selectedGalleryImgBase64) { alert("الرجاء تحديد صورة أولاً!"); return; }
+            document.getElementById(`${currentPickerTargetApp}SelectedImgStatus`).style.display = "block";
+            document.getElementById(`${currentPickerTargetApp}SelectedImgStatus`).setAttribute('data-attached', selectedGalleryImgBase64);
+            
+            document.getElementById('galleryPickerBar').style.display = "none";
+            openApp(`app-${currentPickerTargetApp}`);
+        }
+
+        // تطبيق FFM المطور (BBM)
+        function sendBbmMessageCloud() {
+            closeSystemKeyboardWindow();
+            const box = document.getElementById('ffmInputBox');
+            const statusImg = document.getElementById('ffmSelectedImgStatus');
+            let attached = statusImg.style.display === 'block' ? statusImg.getAttribute('data-attached') : "";
+
+            if(box.innerText === "اكتب رسالة BBM..." && !attached) return;
+
+            let msgText = box.innerText === "اكتب رسالة BBM..." ? "" : box.innerText;
+            localBbmChats.push({ text: msgText, img: attached, isMe: true });
+            localStorage.setItem('sysLocalBbmChats', JSON.stringify(localBbmChats));
+            
+            box.innerText = "اكتب رسالة BBM...";
+            statusImg.style.display = "none";
+            selectedGalleryImgBase64 = "";
+
+            renderBbmChatsTimeline();
+            calculateSystemStorageUsage();
+        }
+
+        function renderBbmChatsTimeline() {
+            const screen = document.getElementById('bbmChatScreen');
+            screen.innerHTML = "";
+            localBbmChats.forEach((msg, idx) => {
+                let imgTag = msg.img ? `<br><img src="${msg.img}" class="rendered-img">` : "";
+                screen.innerHTML += `
+                    <div class="chat-msg">
+                        <span class="del-btn" onclick="deleteBbmChatItem(${idx})">❌ حذف</span>
+                        <b>أنا:</b> ${msg.text} ${imgTag}
+                    </div>`;
+            });
+            screen.scrollTop = screen.scrollHeight;
+        }
+
+        function deleteBbmChatItem(index) {
+            localBbmChats.splice(index, 1);
+            localStorage.setItem('sysLocalBbmChats', JSON.stringify(localBbmChats));
+            renderBbmChatsTimeline();
+            calculateSystemStorageUsage();
+        }
+
+        function triggerBbmPingBlast() {
+            triggerSystemNotification("FFM PING!", "💥 لقد أرسلت بنق عاجل وهززت المحادثة!", "bg-ffm");
+            document.getElementById('bbmChatScreen').innerHTML += `<div style="background:#ffe6e6; padding:5px; border-radius:4px; text-align:center; font-size:11px; font-weight:bold; color:#b22222; margin-bottom:5px;">💥 PING!!!</div>`;
+            document.getElementById('bbmChatScreen').scrollTop = document.getElementById('bbmChatScreen').scrollHeight;
+        }
+
+        function updateBbmMoodState() {
+            let val = document.getElementById('bbmMood').value;
+            triggerSystemNotification("FFM الحالة", "تم تعديل حالتك الشخصية إلى: " + val, "bg-ffm");
+        }
+
+        // تطبيق أينتس (تويتر القديم)
+        function postClassicTweetCloud() {
+            closeSystemKeyboardWindow();
+            const box = document.getElementById('ayntsInputBox');
+            const statusImg = document.getElementById('ayntsSelectedImgStatus');
+            let attached = statusImg.style.display === 'block' ? statusImg.getAttribute('data-attached') : "";
+
+            if(box.innerText === "ماذا يحدث الآن؟..." && !attached) return;
+
+            let text = box.innerText === "ماذا يحدث الآن؟..." ? "" : box.innerText;
+            localTweets.unshift({ text: text, img: attached });
+            localStorage.setItem('sysLocalTweets', JSON.stringify(localTweets));
+
+            box.innerText = "ماذا يحدث الآن؟...";
+            statusImg.style.display = "none";
+            selectedGalleryImgBase64 = "";
+
+            renderClassicTweetsTimeline();
+            calculateSystemStorageUsage();
+        }
+
+        function renderClassicTweetsTimeline() {
+            const container = document.getElementById('classic-tweets-timeline');
+            container.innerHTML = "";
+            localTweets.forEach((t, idx) => {
+                let imgTag = t.img ? `<br><img src="${t.img}" style="width:100%; height:110px; object-fit:cover; border-radius:6px; margin-top:5px;">` : "";
+                container.innerHTML += `
+                    <div class="tweet-box">
+                        <span class="del-tweet" onclick="deleteClassicTweetItem(${idx})">حذف 🗑️</span>
+                        <div style="font-weight:bold; color:#1da1f2;">@${userSession ? userSession.name : 'User'}</div>
+                        <div style="margin-top:4px; color:#222;">${t.text} ${imgTag}</div>
+                    </div>`;
+            });
+        }
+
+        function deleteClassicTweetItem(index) {
+            localTweets.splice(index, 1);
+            localStorage.setItem('sysLocalTweets', JSON.stringify(localTweets));
+            renderClassicTweetsTimeline();
+            calculateSystemStorageUsage();
+        }
+
+        // تطبيق الهاتف والاتصال وجهات الاتصال
+        function pressDialNum(digit) {
+            if(digit === 'C') {
+                dialNumberBuffer = "";
+            } else {
+                dialNumberBuffer += digit;
+            }
+            document.getElementById('dialerDisplay').innerText = dialNumberBuffer;
+        }
+
+        function triggerOutgoingCall() {
+            if(!dialNumberBuffer) return;
+            document.getElementById('callScreenNumber').innerText = dialNumberBuffer;
+            
+            // البحث إذا كان الرقم مسجل باسم معين في جهات الاتصال
+            let found = localContacts.find(c => c.phone === dialNumberBuffer);
+            document.getElementById('callScreenName').innerText = found ? found.name : "جهة اتصال غير معروفة";
+            
+            document.getElementById('callScreen').style.display = "flex";
+        }
+
+        function endCurrentCall() {
+            document.getElementById('callScreen').style.display = "none";
+            dialNumberBuffer = "";
+            document.getElementById('dialerDisplay').innerText = "";
+        }
+
+        function saveNewContactItem() {
+            let name = document.getElementById('contactNameInput').value.trim();
+            let phone = document.getElementById('contactPhoneInput').value.trim();
+            if(!name || !phone) { alert("يرجى إدخال الاسم والرقم لحفظ جهة الاتصال!"); return; }
+            
+            localContacts.push({ name: name, phone: phone });
+            localStorage.setItem('sysLocalContacts', JSON.stringify(localContacts));
+            
+            document.getElementById('contactNameInput').value = "";
+            document.getElementById('contactPhoneInput').value = "";
+            renderContactsList();
+        }
+
+        function renderContactsList() {
+            const container = document.getElementById('contactsListContainer');
+            container.innerHTML = "";
+            localContacts.forEach(c => {
+                container.innerHTML += `
+                    <div style="background:#fff; padding:6px 10px; border-radius:6px; border:1px solid #ddd; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <b style="font-size:12px;">${c.name}</b><br>
+                            <small style="color:#666; font-size:11px;">${c.phone}</small>
+                        </div>
+                        <button onclick="dialNumberBuffer='${c.phone}'; triggerOutgoingCall();" style="padding:3px 8px; background:#2ecc71; color:white; border:none; border-radius:4px; font-size:11px; cursor:pointer;">📞 اتصال</button>
+                    </div>`;
+            });
+        }
+
+        // تغيير الخلفية الشاملة
+        function changeSystemWallpaperPath(url) {
+            document.getElementById('globalBg').style.backgroundImage = `url('${url}')`;
+            triggerSystemNotification("النظام", "تم تحديث خلفية الجهاز بنجاح!", "bg-settings");
+        }
+
+        // الملاحة والتحكم بالنوافذ
+        function openApp(appId) {
+            closeSystemKeyboardWindow();
+            document.querySelectorAll('.app-window').forEach(win => win.style.display = 'none');
+            document.getElementById(appId).style.display = 'flex';
+            
+            if(appId === 'app-gallery') renderGalleryContainerGrid();
+            if(appId === 'app-ffm') renderBbmChatsTimeline();
+            if(appId === 'app-aynts') renderClassicTweetsTimeline();
+            if(appId === 'app-phone') renderContactsList();
+        }
+
+        function triggerGoHomeView() {
+            closeSystemKeyboardWindow();
+            document.getElementById('galleryPickerBar').style.display = "none";
+            document.querySelectorAll('.app-window').forEach(win => win.style.display = 'none');
+        }
+
+        function triggerSystemNotification(title, text, iconClass) {
             const banner = document.getElementById('notifBanner');
             const icon = document.getElementById('notifIcon');
             document.getElementById('notifTitle').innerText = title;
             document.getElementById('notifText').innerText = text;
-            icon.className = "notif-icon " + bg; icon.innerText = letter;
-            banner.classList.add('show'); playOldNotifSound();
-            setTimeout(() => banner.classList.remove('show'), 3000);
-        }
-
-        // بناء وتوليد الكيبورد الموحد برمجياً
-        let activeAppScope = "";
-        let currentTypingText = "";
-        const arabicLetters = ['ض','ص','ث','ق','ف','غ','ع','هـ','خ','ح','ش','س','ي','ب','ل','ا','ت','ن','م','ك','ط','ر','و','ز','د','ج','؟','!','.'];
-
-        function buildKeyboardHTML(targetId) {
-            let html = `<div class="system-keyboard">`;
-            arabicLetters.forEach(l => { html += `<div class="sys-key" onclick="typeKey('${l}')">${l}</div>`; });
-            html += `<div class="sys-key" style="background:#731a1a;" onclick="typeKey('مسح')">❌</div></div>`;
-            html += `<div class="sys-utils">
-                <div class="sys-btn" style="flex:3; background:#333;" onclick="typeKey(' ')">المسافة</div>
-                <div class="sys-btn" style="background:green;" onclick="closeKeyboard()">تم</div>
-            </div>`;
-            document.getElementById(targetId).innerHTML = html;
-        }
-
-        function activateKeyboard(appScope) {
-            playClickSound();
-            activeAppScope = appScope;
-            // إغلاق كل الكيبوردات أولاً
-            document.getElementById('kbd-ffm').style.display = 'none';
-            document.getElementById('kbd-aynts').style.display = 'none';
+            icon.className = "notif-icon " + iconClass;
+            icon.innerText = title.charAt(0);
             
-            // فتح كيبورد التطبيق المستهدف
-            let kbdBox = document.getElementById(`kbd-${appScope}`);
-            buildKeyboardHTML(`kbd-${appScope}`);
-            kbdBox.style.display = 'block';
-            
-            let currentBox = document.getElementById(`${appScope}InputBox`);
-            if(currentBox.innerText.includes("...")) { currentTypingText = ""; } 
-            else { currentTypingText = currentBox.innerText; }
+            banner.classList.add('show');
+            setTimeout(() => banner.classList.remove('show'), 3500);
         }
-
-        function typeKey(key) {
-            playClickSound();
-            if(key === 'مسح') { currentTypingText = currentTypingText.slice(0, -1); } 
-            else if(key === ' ') { currentTypingText += " "; } 
-            else { currentTypingText += key; }
-            
-            document.getElementById(`${activeAppScope}InputBox`).innerText = currentTypingText || "اضغط للكتابة...";
-        }
-
-        function closeKeyboard() { playClickSound(); document.getElementById('kbd-ffm').style.display = 'none'; document.getElementById('kbd-aynts').style.display = 'none'; }
-
-        // إدارة كاميرا الفلاش وجودة الطيبين
-        let isFlashOn = false;
-        const gradients = [
-            'linear-gradient(135deg, #a8c0ff, #3f2b96)', 'linear-gradient(135deg, #11998e, #38ef7d)',
-            'linear-gradient(135deg, #f12711, #f5af19)', 'linear-gradient(135deg, #8e2de2, #4a00e0)'
-        ];
-
-        function toggleFlash() { playClickSound(); isFlashOn = !isFlashOn; document.getElementById('flashBtn').innerText = isFlashOn ? "⚡ تشغيل" : "⚡ إيقاف"; }
-        
-        function takePhoto() {
-            initAudio();
-            // صوت شاتر الكاميرا القديم برمجياً
-            let now = audioCtx.currentTime; let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
-            osc.type = 'white' === 'white' ? 'triangle' : 'sine'; osc.frequency.setValueAtTime(600, now);
-            gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(now + 0.15);
-
-            if(isFlashOn) {
-                document.getElementById('flash').style.opacity = "1";
-                setTimeout(() => document.getElementById('flash').style.opacity = "0", 150);
-            }
-
-            // توليد صورة عشوائية ملونة مخفضة الجودة من تدرجات الـ CSS وحفظها
-            let randomGrad = gradients[Math.floor(Math.random() * gradients.length)];
-            galleryImages.unshift(randomGrad);
-            saveState();
-            
-            triggerBanner('الكاميرا', 'تم التقاط صورة وحفظها في المعرض بجودة 1.3MP', 'bg-camera', '📷');
-        }
-
-        // إدارة المعرض والاختيار للتطبيقات
-        let currentPickerTarget = "";
-        let selectedImgIndex = null;
-
-        function renderGallery() {
-            const container = document.getElementById('galleryContainer');
-            container.innerHTML = "";
-            if(galleryImages.length === 0) { container.innerHTML = `<p style="color:#666; font-size:12px; grid-column:span 3; text-align:center;">المعرض فارغ، التقط صوراً أولاً!</p>`; return; }
-            
-            galleryImages.forEach((img, index) => {
-                let item = document.createElement('div');
-                item.className = "gallery-item";
-                item.style.background = img;
-                item.onclick = () => {
-                    playClickSound();
-                    document.querySelectorAll('.gallery-item').forEach(el => el.classList.remove('selected'));
-                    item.classList.add('selected');
-                    selectedImgIndex = index;
-                };
-                container.appendChild(item);
-            });
-        }
-
-        function openGalleryPicker(targetApp) {
-            playClickSound();
-            currentPickerTarget = targetApp;
-            openApp('app-gallery');
-            document.getElementById('pickerActions').style.display = "block";
-        }
-
-        function confirmImageSelection() {
-            playClickSound();
-            if(selectedImgIndex !== null) {
-                document.getElementById(`${currentPickerTarget}SelectedImgStatus`).style.display = "block";
-                document.getElementById(`${currentPickerTarget}SelectedImgStatus`).setAttribute('data-img', galleryImages[selectedImgIndex]);
-                openApp(`app-${currentPickerTarget}`);
-            }
-            document.getElementById('pickerActions').style.display = "none";
-            selectedImgIndex = null;
-        }
-
-        // نشر التغريدات وإرسال شات FFM
-        function postTweet() {
-            playClickSound(); closeKeyboard();
-            const box = document.getElementById('ayntsInputBox');
-            const imgStatus = document.getElementById('ayntsSelectedImgStatus');
-            let attachedImg = imgStatus.style.display === "block" ? imgStatus.getAttribute('data-img') : "";
-            
-            if(box.innerText !== "اضغط للكتابة..." || attachedImg) {
-                tweets.unshift({ author: "@Fares", text: box.innerText === "اضغط للكتابة..." ? "" : box.innerText, img: attachedImg });
-                box.innerText = "اضغط للكتابة..."; imgStatus.style.display = "none";
-                saveState(); renderTweets();
-            }
-        }
-
-        function renderTweets() {
-            const tl = document.getElementById('tweets-timeline'); tl.innerHTML = "";
-            tweets.forEach(t => {
-                let imgHtml = t.img ? `<div class="rendered-img" style="background:${t.img}; height:110px;"></div>` : "";
-                tl.innerHTML += `<div class="tweet-box"><div class="tweet-author">${t.author}</div><div class="tweet-text">${t.text} ${imgHtml}</div></div>`;
-            });
-        }
-
-        function sendFFM() {
-            playClickSound(); closeKeyboard();
-            const box = document.getElementById('ffmInputBox');
-            const imgStatus = document.getElementById('ffmSelectedImgStatus');
-            const screen = document.getElementById('bb-screen');
-            let attachedImg = imgStatus.style.display === "block" ? imgStatus.getAttribute('data-img') : "";
-
-            if(box.innerText !== "اضغط لكتابة رسالة..." || attachedImg) {
-                let imgHtml = attachedImg ? `<div class="rendered-img" style="background:${attachedImg}; height:100px;"></div>` : "";
-                screen.innerHTML += `<div style="background:#e2f0ff; padding:6px; border-radius:5px; margin-top:5px; text-align:right; font-size:13px;"><b>أنا:</b> ${box.innerText === "اضغط لكتابة رسالة..." ? "" : box.innerText} ${imgHtml}</div>`;
-                box.innerText = "اضغط لكتابة رسالة..."; imgStatus.style.display = "none";
-                screen.scrollTop = screen.scrollHeight;
-            }
-        }
-
-        function handlePress(key) {
-            playClickSound();
-            if(key === 'PING') {
-                triggerBanner('FFM PING!', '💥 وصلك تنبيه بنق عاجل!', 'bg-ffm', 'F');
-                document.getElementById('bb-screen').innerHTML += `<div style="background:#ffe6e6; padding:6px; border-radius:5px; margin-top:5px; text-align:center; font-size:12px; font-weight:bold; color:#b22222;">💥 PING!!!</div>`;
-            }
-        }
-
-        // الملاحة العامة
-        function openApp(appId) {
-            initAudio(); closeKeyboard();
-            document.querySelectorAll('.app-window').forEach(win => win.style.display = 'none');
-            document.getElementById(appId).style.display = 'flex';
-            if(appId === 'app-aynts') renderTweets();
-            if(appId === 'app-gallery') renderGallery();
-        }
-        function goHome() { playClickSound(); closeKeyboard(); document.getElementById('pickerActions').style.display="none"; document.querySelectorAll('.app-window').forEach(win => win.style.display = 'none'); }
-        
-        function updateTime() {
-            const now = new Date(); let h = now.getHours(); let m = now.getMinutes();
-            document.getElementById('current-time').innerText = (h<10?'0':'')+h + ':' + (m<10?'0':'')+m;
-        }
-        setInterval(updateTime, 1000); updateTime(); updateHomeScreen();
     </script>
 </body>
 </html>
