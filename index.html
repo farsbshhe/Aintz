@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OS Nostalgia Ultimate</title>
+    <style>
+        * {
+            box-sizing: border-box; margin: 0; padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none; -webkit-user-select: none;
+            -webkit-touch-callout: none; touch-action: manipulation;
+        }
+        body { background-color: #111; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+        
+        .phone-container {
+            width: 375px; height: 812px;
+            background: linear-gradient(135deg, #1b3a57, #386b99);
+            border: 12px solid #0d0d0d; border-radius: 40px;
+            position: relative; box-shadow: 0px 20px 50px rgba(0,0,0,0.6); overflow: hidden;
+        }
+        @media (max-width: 450px) { .phone-container { width: 100vw; height: 100vh; border: none; border-radius: 0; } }
+
+        .status-bar { height: 25px; background: rgba(0, 0, 0, 0.4); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; color: white; font-size: 12px; position: absolute; top: 0; width: 100%; z-index: 100; }
+        
+        /* بانر الإشعارات */
+        .notification-banner {
+            position: absolute; top: -70px; left: 5%; width: 90%; height: 60px;
+            background: rgba(255, 255, 255, 0.95); border-radius: 12px; z-index: 200;
+            display: flex; align-items: center; padding: 10px; color: #333;
+            transition: top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 1px solid #fff;
+        }
+        .notification-banner.show { top: 35px; }
+        .notif-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-weight: bold; color: white; font-size: 16px; margin-left: 10px; }
+        .notif-body { flex: 1; display: flex; flex-direction: column; }
+        .notif-title { font-size: 12px; font-weight: bold; color: #111; }
+        .notif-text { font-size: 11px; color: #555; margin-top: 2px; }
+
+        /* الشاشة الرئيسية */
+        .home-screen { padding-top: 45px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding-left: 15px; padding-right: 15px; }
+        .app-icon { display: none; flex-direction: column; align-items: center; cursor: pointer; }
+        .app-icon.visible { display: flex; }
+        
+        .app-icon .icon-shape {
+            width: 60px; height: 60px; border-radius: 14px; display: flex; justify-content: center; align-items: center;
+            font-weight: bold; color: white; font-size: 22px; box-shadow: 0px 4px 8px rgba(0,0,0,0.4); position: relative; overflow: hidden;
+        }
+        .app-icon .icon-shape::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 50%; background: linear-gradient(to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0.05)); }
+        .app-name { color: white; font-size: 11px; margin-top: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.9); text-align: center; }
+
+        .bg-ffm { background: linear-gradient(#2c2c2c, #111) !important; border: 1px solid #3c3c3c; }
+        .bg-aynts { background: linear-gradient(#4ba2e4, #0d7ec7) !important; }
+        .bg-store { background: linear-gradient(#54b4eb, #1279cb) !important; }
+        .bg-camera { background: linear-gradient(#444, #222) !important; }
+        .bg-gallery { background: linear-gradient(#ffdb4d, #ffa600) !important; }
+        .bg-settings { background: linear-gradient(#b1b8be, #78828a) !important; }
+
+        /* النوافذ */
+        .app-window { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ededed; z-index: 5; display: none; flex-direction: column; padding-top: 25px; }
+        .window-header { background: linear-gradient(#f6f6f6, #d1d1d1); height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-bottom: 1px solid #b3b3b3; color: #333; }
+        .window-content { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; position: relative; }
+
+        /* الكيبورد الافتراضي الموحد للنظام */
+        .system-keyboard-box { background: #1a1a1a; padding: 5px; border-radius: 12px; margin-top: auto; display: none; }
+        .system-keyboard { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; }
+        .sys-key { background: linear-gradient(#3a3a3a, #1f1f1f); color: #fff; text-align: center; padding: 10px 0; font-size: 13px; border-radius: 5px; border-bottom: 2px solid #000; cursor: pointer; }
+        .sys-key:active { background: #000; }
+        .sys-utils { display: flex; gap: 4px; margin-top: 4px; }
+        .sys-btn { flex: 1; background: #444; color: white; border: none; padding: 8px 0; border-radius: 5px; font-size: 11px; cursor: pointer; }
+
+        /* الشات والمحتوى */
+        .bb-chat-box { flex: 1; background: #fff; border: 1px solid #ccc; border-radius: 5px; padding: 10px; overflow-y: auto; margin-bottom: 5px; }
+        .rendered-img { width: 100%; max-height: 120px; object-fit: cover; border-radius: 6px; margin-top: 5px; }
+
+        /* واجهة أينتس */
+        .aynts-composer { background: white; padding: 8px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 10px; }
+        .custom-input-box { width: 100%; min-height: 35px; border: 1px solid #eee; padding: 5px; font-size: 13px; color: #222; background: #fafafa; border-radius: 4px; cursor: pointer; }
+        .tweet-box { background: white; border: 1px solid #ddd; padding: 10px; border-radius: 8px; margin-bottom: 8px; }
+
+        /* واجهة الكاميرا القديمة */
+        .camera-view { width: 100%; flex: 1; background: #000; position: relative; border-radius: 8px; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        .camera-lens { width: 100%; height: 100%; background: linear-gradient(45deg, #2c3e50, #000000); filter: blur(1.5px) contrast(1.2) brightness(0.9); position: relative; } /* جودة مخفضة */
+        .camera-lens::after { content: ''; position: absolute; width: 100%; height: 100%; background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.4)); }
+        .flash-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: white; opacity:0; transition: opacity 0.1s; pointer-events: none; }
+        .camera-controls { height: 70px; display: flex; justify-content: space-around; align-items: center; background: #111; margin-top: 5px; border-radius: 8px; }
+        .cam-btn { background: white; border: none; padding: 10px; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; font-weight: bold; }
+
+        /* معرض الصور */
+        .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+        .gallery-item { width: 100%; height: 90px; border-radius: 4px; background-size: cover; background-position: center; border: 1px solid #ccc; cursor: pointer; filter: blur(0.5px) contrast(1.1); }
+        .gallery-item.selected { border: 3px solid #0d7ec7; }
+
+        /* المتجر والإعدادات */
+        .store-item { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .setting-row { background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; color: #333; font-size: 13px; }
+
+        /* الزر العائم */
+        .assistive-touch { width: 50px; height: 50px; background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 12px; position: absolute; bottom: 40px; left: 30px; z-index: 999; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        .assistive-touch .inner-circle { width: 26px; height: 26px; background: rgba(255, 255, 255, 0.6); border-radius: 50%; }
+    </style>
+</head>
+<body>
+
+    <div class="phone-container" id="phone">
+        
+        <div class="status-bar">
+            <span id="current-time">00:00</span>
+            <span id="battery-level">🔋 95%</span>
+        </div>
+
+        <!-- الإشعار المنبثق -->
+        <div class="notification-banner" id="notifBanner">
+            <div class="notif-icon" id="notifIcon">F</div>
+            <div class="notif-body">
+                <div class="notif-title" id="notifTitle">نظام التشغيل</div>
+                <div class="notif-text" id="notifText">رسالة جديدة...</div>
+            </div>
+        </div>
+
+        <!-- الشاشة الرئيسية -->
+        <div class="home-screen" id="homeGrid">
+            <div class="app-icon" id="icon-ffm" onclick="openApp('app-ffm')"><div class="icon-shape bg-ffm">F</div><div class="app-name">FFM</div></div>
+            <div class="app-icon" id="icon-aynts" onclick="openApp('app-aynts')"><div class="icon-shape bg-aynts">ت</div><div class="app-name">أينتس</div></div>
+            <div class="app-icon visible" id="icon-camera" onclick="openApp('app-camera')"><div class="icon-shape bg-camera">📷</div><div class="app-name">الكاميرا</div></div>
+            <div class="app-icon visible" id="icon-gallery" onclick="openApp('app-gallery')"><div class="icon-shape bg-gallery">🖼️</div><div class="app-name">المعرض</div></div>
+            <div class="app-icon visible" id="icon-store" onclick="openApp('app-store')"><div class="icon-shape bg-store">A</div><div class="app-name">المتجر</div></div>
+            <div class="app-icon visible" id="icon-settings" onclick="openApp('app-settings')"><div class="icon-shape bg-settings">⚙️</div><div class="app-name">الإعدادات</div></div>
+        </div>
+
+        <!-- تطبيق FFM -->
+        <div id="app-ffm" class="app-window">
+            <div class="window-header">FFM Chat</div>
+            <div class="window-content">
+                <div class="bb-chat-box" id="bb-screen"></div>
+                <div class="custom-input-box" id="ffmInputBox" onclick="activateKeyboard('ffm')">اضغط لكتابة رسالة...</div>
+                <div id="ffmSelectedImgStatus" style="font-size:11px; color:green; margin:3px; display:none;">تم اختيار صورة لإرسالها!</div>
+                
+                <!--utils-->
+                <div style="display:flex; gap:5px; margin-top:5px;">
+                    <button onclick="openGalleryPicker('ffm')" style="padding:4px; font-size:11px;">🖼️ اختيار صورة</button>
+                    <button onclick="sendFFM()" style="padding:4px 10px; background:green; color:white; border:none; border-radius:4px; font-size:11px; margin-right:auto;">إرسال</button>
+                    <button onclick="handlePress('PING')" style="padding:4px; background:#0d7ec7; color:white; border:none; border-radius:4px; font-size:11px;">PING</button>
+                </div>
+            </div>
+            <!-- كيبورد التطبيق المدمج -->
+            <div class="system-keyboard-box" id="kbd-ffm"></div>
+        </div>
+
+        <!-- تطبيق أينتس -->
+        <div id="app-aynts" class="app-window">
+            <div class="window-header">أينتس (تويتر)</div>
+            <div class="window-content">
+                <div class="aynts-composer">
+                    <div class="custom-input-box" id="ayntsInputBox" onclick="activateKeyboard('aynts')">ماذا يحدث الآن؟...</div>
+                    <div id="ayntsSelectedImgStatus" style="font-size:11px; color:green; margin-top:5px; display:none;">تم إرفاق صورة من المعرض!</div>
+                    <div style="display:flex; justify-content:between; margin-top:6px; align-items:center;">
+                        <button onclick="openGalleryPicker('aynts')" style="background:none; border:none; font-size:12px; cursor:pointer;">🖼️ أرفق صورة</button>
+                        <button onclick="postTweet()" style="padding:4px 12px; background:#0d7ec7; color:white; border:none; border-radius:12px; font-size:12px; margin-right:auto;">تغريد</button>
+                    </div>
+                </div>
+                <div id="tweets-timeline" style="flex:1; overflow-y:auto;"></div>
+            </div>
+            <div class="system-keyboard-box" id="kbd-aynts"></div>
+        </div>
+
+        <!-- تطبيق الكاميرا الخلفية الفلاش -->
+        <div id="app-camera" class="app-window">
+            <div class="window-header">الكاميرا الخلفية</div>
+            <div class="window-content" style="padding:5px;">
+                <div class="camera-view">
+                    <div class="camera-lens" id="lensBg"></div>
+                    <div class="flash-overlay" id="flash"></div>
+                    <div style="position:absolute; top:10px; right:10px; color:white; font-size:10px; background:rgba(0,0,0,0.5); padding:3px; border-radius:3px;">جودة: 1.3 MP</div>
+                </div>
+                <div class="camera-controls">
+                    <button class="cam-btn" id="flashBtn" onclick="toggleFlash()" style="background:#333; color:white; font-size:12px;">⚡ إيقاف</button>
+                    <button class="cam-btn" onclick="takePhoto()" style="background:red; width:55px; height:55px;"></button>
+                    <div style="width:45px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- تطبيق معرض الصور -->
+        <div id="app-gallery" class="app-window">
+            <div class="window-header">معرض الصور</div>
+            <div class="window-content">
+                <div id="galleryContainer" class="gallery-grid"></div>
+                <div id="pickerActions" style="display:none; margin-top:15px; text-align:center;">
+                    <button onclick="confirmImageSelection()" style="padding:6px 15px; background:green; color:white; border:none; border-radius:4px;">تأكيد اختيار الصورة</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- المتجر -->
+        <div id="app-store" class="app-window">
+            <div class="window-header">متجر التطبيقات</div>
+            <div class="window-content">
+                <div class="store-item">
+                    <div><b>تطبيق FFM Chat</b><div style="font-size:11px; color:#666;">BBM قديم</div></div>
+                    <button class="store-btn" id="btn-install-ffm" onclick="installApp('ffm')" style="padding:5px; font-size:12px;">تثبيت</button>
+                </div>
+                <div class="store-item">
+                    <div><b>تطبيق أينتس</b><div style="font-size:11px; color:#666;">تويتر قديم</div></div>
+                    <button class="store-btn" id="btn-install-aynts" onclick="installApp('aynts')" style="padding:5px; font-size:12px;">تثبيت</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- الإعدادات والمساحة -->
+        <div id="app-settings" class="app-window">
+            <div class="window-header">الإعدادات</div>
+            <div class="window-content">
+                <div class="setting-row">
+                    <span>مساحة التخزين الإجمالية</span>
+                    <span style="font-weight:bold; color:blue;">1.00 GB</span>
+                </div>
+                <div class="setting-row">
+                    <span>المساحة المتوفرة الآن</span>
+                    <span id="freeSpaceLabel" style="font-weight:bold; color:green;">1024.00 MB</span>
+                </div>
+                <div class="setting-row">
+                    <span>صوت نغمة الإشعارات</span>
+                    <select id="notifSoundSelect" onchange="playOldNotifSound()" style="padding:3px;">
+                        <option value="classic">تن تن (ناعم)</option>
+                        <option value="ring">رنين قديم</option>
+                        <option value="alert">تنبيه حاد</option>
+                    </select>
+                </div>
+                <button onclick="localStorage.clear(); location.reload();" style="margin-top:auto; padding:8px; background:#731a1a; color:white; border:none; border-radius:5px; font-size:12px;">تهيئة كاملة للجوال ⚠️</button>
+            </div>
+        </div>
+
+        <!-- الزر العائم AssistiveTouch -->
+        <div class="assistive-touch" id="assistiveTouch" onclick="goHome()">
+            <div class="inner-circle"></div>
+        </div>
+
+    </div>
+
+    <script>
+        let audioCtx = null;
+        function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+
+        function playClickSound() {
+            initAudio(); if(!audioCtx) return;
+            let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+            osc.type = 'triangle'; osc.frequency.setValueAtTime(140, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.02);
+            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.02);
+        }
+
+        function playOldNotifSound() {
+            initAudio(); if(!audioCtx) return;
+            let type = document.getElementById('notifSoundSelect').value;
+            let now = audioCtx.currentTime;
+            let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            
+            if(type === 'classic') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(523, now); osc.frequency.setValueAtTime(659, now + 0.1);
+                gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+            } else if(type === 'ring') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(800, now); osc.frequency.setValueAtTime(400, now + 0.15);
+                gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+            } else {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(250, now);
+                gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+            }
+            osc.start(); osc.stop(now + 0.4);
+        }
+
+        // متغيرات النظام والمساحة
+        let installedApps = JSON.parse(localStorage.getItem('installedApps')) || { ffm: false, aynts: false };
+        let tweets = JSON.parse(localStorage.getItem('tweets')) || [{ author: "@Fares", text: "تم تشغيل نظام الكيبورد الموحد بنجاح! 🚀", img: "" }];
+        let galleryImages = JSON.parse(localStorage.getItem('galleryImages')) || [];
+        let systemStorage = 1024.00; // 1GB بالـ MB
+
+        function saveState() {
+            localStorage.setItem('installedApps', JSON.stringify(installedApps));
+            localStorage.setItem('tweets', JSON.stringify(tweets));
+            localStorage.setItem('galleryImages', JSON.stringify(galleryImages));
+            updateStorageDisplay();
+        }
+
+        function updateStorageDisplay() {
+            // كل صورة تأخذ حوالي 2.4MB وكل تطبيق 15MB محاكاة حقيقية
+            let used = galleryImages.length * 2.42;
+            if(installedApps.ffm) used += 14.5;
+            if(installedApps.aynts) used += 18.2;
+            let free = (systemStorage - used).toFixed(2);
+            document.getElementById('freeSpaceLabel').innerText = free + " MB";
+        }
+
+        function updateHomeScreen() {
+            if(installedApps.ffm) { document.getElementById('icon-ffm').classList.add('visible'); document.getElementById('btn-install-ffm').innerText = "مثبت"; }
+            if(installedApps.aynts) { document.getElementById('icon-aynts').classList.add('visible'); document.getElementById('btn-install-aynts').innerText = "مثبت"; }
+            updateStorageDisplay();
+        }
+
+        function installApp(appName) {
+            playClickSound();
+            if(!installedApps[appName]) {
+                installedApps[appName] = true; saveState(); updateHomeScreen();
+                triggerBanner('تم التثبيت', 'التطبيق جاهز على الواجهة الآن.', 'bg-store', 'A');
+            }
+        }
+
+        function triggerBanner(title, text, bg, letter) {
+            const banner = document.getElementById('notifBanner');
+            const icon = document.getElementById('notifIcon');
+            document.getElementById('notifTitle').innerText = title;
+            document.getElementById('notifText').innerText = text;
+            icon.className = "notif-icon " + bg; icon.innerText = letter;
+            banner.classList.add('show'); playOldNotifSound();
+            setTimeout(() => banner.classList.remove('show'), 3000);
+        }
+
+        // بناء وتوليد الكيبورد الموحد برمجياً
+        let activeAppScope = "";
+        let currentTypingText = "";
+        const arabicLetters = ['ض','ص','ث','ق','ف','غ','ع','هـ','خ','ح','ش','س','ي','ب','ل','ا','ت','ن','م','ك','ط','ر','و','ز','د','ج','؟','!','.'];
+
+        function buildKeyboardHTML(targetId) {
+            let html = `<div class="system-keyboard">`;
+            arabicLetters.forEach(l => { html += `<div class="sys-key" onclick="typeKey('${l}')">${l}</div>`; });
+            html += `<div class="sys-key" style="background:#731a1a;" onclick="typeKey('مسح')">❌</div></div>`;
+            html += `<div class="sys-utils">
+                <div class="sys-btn" style="flex:3; background:#333;" onclick="typeKey(' ')">المسافة</div>
+                <div class="sys-btn" style="background:green;" onclick="closeKeyboard()">تم</div>
+            </div>`;
+            document.getElementById(targetId).innerHTML = html;
+        }
+
+        function activateKeyboard(appScope) {
+            playClickSound();
+            activeAppScope = appScope;
+            // إغلاق كل الكيبوردات أولاً
+            document.getElementById('kbd-ffm').style.display = 'none';
+            document.getElementById('kbd-aynts').style.display = 'none';
+            
+            // فتح كيبورد التطبيق المستهدف
+            let kbdBox = document.getElementById(`kbd-${appScope}`);
+            buildKeyboardHTML(`kbd-${appScope}`);
+            kbdBox.style.display = 'block';
+            
+            let currentBox = document.getElementById(`${appScope}InputBox`);
+            if(currentBox.innerText.includes("...")) { currentTypingText = ""; } 
+            else { currentTypingText = currentBox.innerText; }
+        }
+
+        function typeKey(key) {
+            playClickSound();
+            if(key === 'مسح') { currentTypingText = currentTypingText.slice(0, -1); } 
+            else if(key === ' ') { currentTypingText += " "; } 
+            else { currentTypingText += key; }
+            
+            document.getElementById(`${activeAppScope}InputBox`).innerText = currentTypingText || "اضغط للكتابة...";
+        }
+
+        function closeKeyboard() { playClickSound(); document.getElementById('kbd-ffm').style.display = 'none'; document.getElementById('kbd-aynts').style.display = 'none'; }
+
+        // إدارة كاميرا الفلاش وجودة الطيبين
+        let isFlashOn = false;
+        const gradients = [
+            'linear-gradient(135deg, #a8c0ff, #3f2b96)', 'linear-gradient(135deg, #11998e, #38ef7d)',
+            'linear-gradient(135deg, #f12711, #f5af19)', 'linear-gradient(135deg, #8e2de2, #4a00e0)'
+        ];
+
+        function toggleFlash() { playClickSound(); isFlashOn = !isFlashOn; document.getElementById('flashBtn').innerText = isFlashOn ? "⚡ تشغيل" : "⚡ إيقاف"; }
+        
+        function takePhoto() {
+            initAudio();
+            // صوت شاتر الكاميرا القديم برمجياً
+            let now = audioCtx.currentTime; let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+            osc.type = 'white' === 'white' ? 'triangle' : 'sine'; osc.frequency.setValueAtTime(600, now);
+            gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(now + 0.15);
+
+            if(isFlashOn) {
+                document.getElementById('flash').style.opacity = "1";
+                setTimeout(() => document.getElementById('flash').style.opacity = "0", 150);
+            }
+
+            // توليد صورة عشوائية ملونة مخفضة الجودة من تدرجات الـ CSS وحفظها
+            let randomGrad = gradients[Math.floor(Math.random() * gradients.length)];
+            galleryImages.unshift(randomGrad);
+            saveState();
+            
+            triggerBanner('الكاميرا', 'تم التقاط صورة وحفظها في المعرض بجودة 1.3MP', 'bg-camera', '📷');
+        }
+
+        // إدارة المعرض والاختيار للتطبيقات
+        let currentPickerTarget = "";
+        let selectedImgIndex = null;
+
+        function renderGallery() {
+            const container = document.getElementById('galleryContainer');
+            container.innerHTML = "";
+            if(galleryImages.length === 0) { container.innerHTML = `<p style="color:#666; font-size:12px; grid-column:span 3; text-align:center;">المعرض فارغ، التقط صوراً أولاً!</p>`; return; }
+            
+            galleryImages.forEach((img, index) => {
+                let item = document.createElement('div');
+                item.className = "gallery-item";
+                item.style.background = img;
+                item.onclick = () => {
+                    playClickSound();
+                    document.querySelectorAll('.gallery-item').forEach(el => el.classList.remove('selected'));
+                    item.classList.add('selected');
+                    selectedImgIndex = index;
+                };
+                container.appendChild(item);
+            });
+        }
+
+        function openGalleryPicker(targetApp) {
+            playClickSound();
+            currentPickerTarget = targetApp;
+            openApp('app-gallery');
+            document.getElementById('pickerActions').style.display = "block";
+        }
+
+        function confirmImageSelection() {
+            playClickSound();
+            if(selectedImgIndex !== null) {
+                document.getElementById(`${currentPickerTarget}SelectedImgStatus`).style.display = "block";
+                document.getElementById(`${currentPickerTarget}SelectedImgStatus`).setAttribute('data-img', galleryImages[selectedImgIndex]);
+                openApp(`app-${currentPickerTarget}`);
+            }
+            document.getElementById('pickerActions').style.display = "none";
+            selectedImgIndex = null;
+        }
+
+        // نشر التغريدات وإرسال شات FFM
+        function postTweet() {
+            playClickSound(); closeKeyboard();
+            const box = document.getElementById('ayntsInputBox');
+            const imgStatus = document.getElementById('ayntsSelectedImgStatus');
+            let attachedImg = imgStatus.style.display === "block" ? imgStatus.getAttribute('data-img') : "";
+            
+            if(box.innerText !== "اضغط للكتابة..." || attachedImg) {
+                tweets.unshift({ author: "@Fares", text: box.innerText === "اضغط للكتابة..." ? "" : box.innerText, img: attachedImg });
+                box.innerText = "اضغط للكتابة..."; imgStatus.style.display = "none";
+                saveState(); renderTweets();
+            }
+        }
+
+        function renderTweets() {
+            const tl = document.getElementById('tweets-timeline'); tl.innerHTML = "";
+            tweets.forEach(t => {
+                let imgHtml = t.img ? `<div class="rendered-img" style="background:${t.img}; height:110px;"></div>` : "";
+                tl.innerHTML += `<div class="tweet-box"><div class="tweet-author">${t.author}</div><div class="tweet-text">${t.text} ${imgHtml}</div></div>`;
+            });
+        }
+
+        function sendFFM() {
+            playClickSound(); closeKeyboard();
+            const box = document.getElementById('ffmInputBox');
+            const imgStatus = document.getElementById('ffmSelectedImgStatus');
+            const screen = document.getElementById('bb-screen');
+            let attachedImg = imgStatus.style.display === "block" ? imgStatus.getAttribute('data-img') : "";
+
+            if(box.innerText !== "اضغط لكتابة رسالة..." || attachedImg) {
+                let imgHtml = attachedImg ? `<div class="rendered-img" style="background:${attachedImg}; height:100px;"></div>` : "";
+                screen.innerHTML += `<div style="background:#e2f0ff; padding:6px; border-radius:5px; margin-top:5px; text-align:right; font-size:13px;"><b>أنا:</b> ${box.innerText === "اضغط لكتابة رسالة..." ? "" : box.innerText} ${imgHtml}</div>`;
+                box.innerText = "اضغط لكتابة رسالة..."; imgStatus.style.display = "none";
+                screen.scrollTop = screen.scrollHeight;
+            }
+        }
+
+        function handlePress(key) {
+            playClickSound();
+            if(key === 'PING') {
+                triggerBanner('FFM PING!', '💥 وصلك تنبيه بنق عاجل!', 'bg-ffm', 'F');
+                document.getElementById('bb-screen').innerHTML += `<div style="background:#ffe6e6; padding:6px; border-radius:5px; margin-top:5px; text-align:center; font-size:12px; font-weight:bold; color:#b22222;">💥 PING!!!</div>`;
+            }
+        }
+
+        // الملاحة العامة
+        function openApp(appId) {
+            initAudio(); closeKeyboard();
+            document.querySelectorAll('.app-window').forEach(win => win.style.display = 'none');
+            document.getElementById(appId).style.display = 'flex';
+            if(appId === 'app-aynts') renderTweets();
+            if(appId === 'app-gallery') renderGallery();
+        }
+        function goHome() { playClickSound(); closeKeyboard(); document.getElementById('pickerActions').style.display="none"; document.querySelectorAll('.app-window').forEach(win => win.style.display = 'none'); }
+        
+        function updateTime() {
+            const now = new Date(); let h = now.getHours(); let m = now.getMinutes();
+            document.getElementById('current-time').innerText = (h<10?'0':'')+h + ':' + (m<10?'0':'')+m;
+        }
+        setInterval(updateTime, 1000); updateTime(); updateHomeScreen();
+    </script>
+</body>
+</html>
