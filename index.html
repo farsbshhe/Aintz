@@ -2,666 +2,429 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FFM Nostalgia OS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>تطبيق قِيَم</title>
+    
+    <!-- إعدادات تطبيق الويب والأيفون (PWA Profile) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="قِيَم">
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/180/5A3D27/FBF5E5?text=%D9%82%D9%90%D9%8A%D9%8E%D9%85">
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogItiq2LfZqNmK2YIg2YLZg9mK2YUiLAogICJzaG9ydF9uYW1lIjogItiq2LfZqNmK2YIiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiI0ZCRjVFNSIsCiAgInRoZW1lX2NvbG9yIjogIiNGQkY1RTUiCn0=">
+
+    <!-- FontAwesome & Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap">
+
     <style>
+        :root {
+            --bg-color: #FBF5E5;
+            --card-bg: #F4E8CE;
+            --text-color: #362213;
+            --accent-color: #5A3D27;
+            --accent-light: #E8D3AE;
+            --nav-height: 65px;
+        }
+
         * {
-            box-sizing: border-box; margin: 0; padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            user-select: none; -webkit-user-select: none;
+            box-sizing: border-box;
+            margin: 0; padding: 0;
+            font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             touch-action: manipulation;
         }
-        body { background-color: #000; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
-        
-        .phone-container {
-            width: 375px; height: 812px; background: #111; position: relative; overflow: hidden;
-            border: 4px solid #333; border-radius: 35px; box-shadow: 0px 20px 50px rgba(0,0,0,0.8);
-        }
-        @media (max-width: 450px) { .phone-container { width: 100vw; height: 100vh; border: none; border-radius: 0; } }
 
-        /* الخلفيات المتوافقة والمضمونة العمل بجودات ممتازة */
-        .phone-bg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            background-size: cover; background-position: center; z-index: 1; transition: background 0.3s;
+        .page {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column;
+            opacity: 0; pointer-events: none;
+            transform: translate3d(0, 0, 0) scale(0.98);
+            transition: transform 0.25s ease, opacity 0.25s ease;
+            background-color: var(--bg-color);
+            z-index: 1;
         }
 
-        /* شريط الحالة */
-        .status-bar { height: 25px; background: rgba(0, 0, 0, 0.6); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; color: white; font-size: 11px; position: absolute; top: 0; width: 100%; z-index: 100; }
-        
-        /* بانر الإشعارات قابل للإزالة */
-        .notification-banner {
-            position: absolute; top: -80px; left: 5%; width: 90%; height: 65px;
-            background: rgba(255, 255, 255, 0.98); border-radius: 13px; z-index: 200;
-            display: flex; align-items: center; padding: 10px; color: #333;
-            transition: top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.2);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4); cursor: pointer;
+        .page.active {
+            opacity: 1; pointer-events: auto;
+            transform: translate3d(0, 0, 0) scale(1);
+            z-index: 2;
         }
-        .notification-banner.show { top: 35px; }
 
-        /* واجهة الأيقونات الكلاسيكية اللامعة الفخمة */
-        .home-screen { position: relative; z-index: 2; padding-top: 50px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding-left: 15px; padding-right: 15px; }
-        .app-icon { display: none; flex-direction: column; align-items: center; cursor: pointer; position: relative; }
-        .app-icon.visible { display: flex; }
-        
-        /* تأثير اهتزاز حذف التطبيقات */
-        @keyframes wiggle { 0% { transform: rotate(1deg); } 50% { transform: rotate(-1deg); } 100% { transform: rotate(1deg); } }
-        .edit-mode .app-icon { animation: wiggle 0.25s infinite alternate; }
-        .delete-badge { position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; border-radius: 50%; width: 20px; height: 20px; display: none; justify-content: center; align-items: center; font-size: 12px; font-weight: bold; border: 1px solid white; z-index: 10; }
-        .edit-mode .delete-badge.can-delete { display: flex; }
-
-        .icon-shape {
-            width: 62px; height: 62px; border-radius: 15px; display: flex; justify-content: center; align-items: center;
-            font-weight: bold; color: white; font-size: 13px; box-shadow: 0px 4px 10px rgba(0,0,0,0.4); position: relative; overflow: hidden;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        .btn-action {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid rgba(54, 34, 19, 0.15);
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 1rem; font-weight: 700;
+            cursor: pointer; width: 100%; margin: 8px 0;
+            box-shadow: 0 4px 10px rgba(54, 34, 19, 0.05);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: all 0.15s ease;
         }
-        /* لمعان نظام iOS 6 الكلاسيكي */
-        .icon-shape::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 50%; background: linear-gradient(to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0.05)); border-radius: 15px 15px 0 0; }
-        
-        .app-name { color: white; font-size: 11px; margin-top: 6px; text-shadow: 1px 1px 3px rgba(0,0,0,0.9); font-weight: 500; text-align: center; }
 
-        /* تصاميم الأيقونات الاحترافية بدلاً من الإيموجي */
-        .bg-ffm { background: linear-gradient(#2b3e50, #1a252f); border: 1px solid #34495e; font-size: 14px; letter-spacing: 1px; color: #fff; }
-        .bg-aynts { background: linear-gradient(#55acee, #2992dd); font-size: 11px; }
-        .bg-phone { background: linear-gradient(#4cd964, #28a745); font-size: 20px; }
-        .bg-camera { background: linear-gradient(#7f8c8d, #4d5656); font-size: 20px; }
-        .bg-gallery { background: linear-gradient(#ffcc00, #f39c12); font-size: 20px; }
-        .bg-store { background: linear-gradient(#54b4eb, #007aff); font-size: 18px; font-style: italic; }
-        .bg-settings { background: linear-gradient(#bdc3c7, #7f8c8d); font-size: 20px; }
-
-        /* النوافذ العائمة */
-        .app-window { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f2f2f7; z-index: 5; display: none; flex-direction: column; padding-top: 25px; }
-        .window-header { background: linear-gradient(#f8f8f8, #e5e5e5); height: 44px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-bottom: 1px solid #b5b5b5; color: #000; font-size: 15px; }
-        .window-content { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; }
-
-        /* واجهة FFM المطابقة للـ BBM الأصلي */
-        .bbm-profile { background: #1a252f; color: white; padding: 10px; display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
-        .bbm-chat-area { flex: 1; background: #d6e0ea; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-        .bbm-bubble { background: white; padding: 8px 12px; border-radius: 8px; font-size: 13px; max-width: 85%; align-self: flex-start; color: #333; box-shadow: 0 1px 2px rgba(0,0,0,0.1); position: relative; }
-        .bbm-bubble.me { background: #e1ffc7; align-self: flex-end; }
-        .bbm-del { color: #e74c3c; font-size: 10px; margin-right: 8px; cursor: pointer; float: left; }
-
-        /* واجهة أينتس (تويتر الكلاسيكي المطور) */
-        .tw-timeline { flex: 1; overflow-y: auto; background: #e6ecf0; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
-        .tw-card { background: white; border-radius: 6px; padding: 10px; border: 1px solid #e1e8ed; font-size: 13px; color: #333; position: relative; }
-
-        /* حقول إدخال حقيقية لفتح كيبورد الآيفون الصدقي المريح */
-        .native-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 13px; background: white; outline: none; margin-bottom: 5px; text-align: right; color: #000; }
-
-        /* مستعرض الكاميرا الفعلي */
-        .cam-stream { width: 100%; flex: 1; background: #000; object-fit: cover; }
-
-        /* نافذة تكبير عرض الصور بالكامل */
-        .full-image-modal { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index: 300; display:none; flex-direction:column; justify-content:center; align-items:center; }
-        .full-image-modal img { max-width: 100%; max-height: 80%; object-fit: contain; }
-
-        /* زر الملاحة الهوم العائم والقابل للسحب والتحريك الحر (AssistiveTouch) */
-        .assistive-touch {
-            width: 50px; height: 50px; background: rgba(0, 0, 0, 0.6); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%;
-            position: absolute; bottom: 40px; left: 40px; z-index: 999; cursor: pointer;
-            display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            touch-action: none;
+        .btn-action:active {
+            background-color: var(--accent-color);
+            color: #FFF; transform: scale(0.96);
         }
-        .assistive-touch .inner-circle { width: 24px; height: 24px; background: rgba(255, 255, 255, 0.7); border-radius: 50%; }
 
-        .setting-item { background: white; padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #333; border: 1px solid #e5e5e7; }
-        .store-row { background: white; padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #ddd; }
+        .btn-google { background-color: #FFF; color: #000; }
+        .btn-apple { background-color: #000; color: #FFF; }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            z-index: 100; display: none; justify-content: center; align-items: center;
+            padding: 20px;
+        }
+
+        .modal-box {
+            background: var(--bg-color);
+            border-radius: 20px; padding: 25px;
+            width: 100%; max-width: 350px;
+            border: 2px solid var(--accent-color);
+            text-align: center;
+        }
+
+        .motto-list { margin: 20px 0; font-size: 1.3rem; font-weight: 700; line-height: 2; }
+        .app-logo { font-size: 4.5rem; font-weight: 900; color: var(--text-color); text-align: center; }
+
+        .app-header {
+            height: 55px; display: flex; align-items: center; justify-content: center;
+            border-bottom: 1px solid rgba(54, 34, 19, 0.1); position: relative;
+        }
+
+        .home-tabs { display: flex; gap: 20px; font-size: 1.1rem; font-weight: 700; }
+        .home-tab { opacity: 0.5; cursor: pointer; padding: 5px 10px; }
+        .home-tab.active { opacity: 1; border-bottom: 2px solid var(--text-color); }
+
+        .content-area { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: calc(var(--nav-height) + 15px); }
+
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height);
+            background-color: var(--bg-color); border-top: 1px solid rgba(54, 34, 19, 0.12);
+            display: flex; justify-content: space-around; align-items: center; z-index: 10;
+        }
+
+        .nav-item { display: flex; flex-direction: column; align-items: center; opacity: 0.5; font-size: 0.75rem; font-weight: 700; gap: 4px; cursor: pointer; width: 20%; }
+        .nav-item i { font-size: 1.3rem; }
+        .nav-item.active { opacity: 1; transform: scale(1.05); }
+
+        .nav-item.upload-btn { opacity: 1; }
+        .nav-item.upload-btn i { background-color: var(--text-color); color: var(--bg-color); padding: 8px 14px; border-radius: 12px; }
+
+        .profile-avatar {
+            width: 90px; height: 90px; border-radius: 50%; background-color: var(--accent-light);
+            display: flex; justify-content: center; align-items: center; font-size: 2.5rem;
+            border: 3px solid var(--text-color); margin: 0 auto 10px; object-fit: cover;
+        }
+
+        .input-edit {
+            background: #FFF; border: 1px solid var(--accent-color); border-radius: 10px;
+            padding: 10px; color: var(--text-color); font-size: 0.95rem; text-align: left;
+            width: 100%; margin-top: 5px; dir: ltr;
+        }
+
+        .settings-card { background-color: var(--card-bg); border-radius: 15px; padding: 15px; margin-top: 15px; }
+        .setting-item { display: flex; flex-direction: column; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid rgba(54, 34, 19, 0.08); }
+        .setting-item:last-child { border-bottom: none; }
+
+        .error-msg { color: #d9534f; font-size: 0.8rem; margin-top: 4px; display: none; }
     </style>
 </head>
 <body>
 
-    <div class="phone-container" id="phoneBox">
-        <!-- الخلفية المضمونة المستقرة -->
-        <div class="phone-bg" id="appBg"></div>
-        
-        <!-- شريط الحالة العلوي الصدقي -->
-        <div class="status-bar">
-            <span id="liveClock">00:00</span>
-            <span id="storageCounter" style="color:#ffcc00; font-weight:bold;">512.00 MB</span>
-            <span id="realBatteryLabel">🔋 --%</span>
-        </div>
-
-        <!-- بانر الإشعارات الفوري القابل للإغلاق بالضغط عليه -->
-        <div class="notification-banner" id="notifBar" onclick="dismissSystemNotification()">
-            <div style="background:#007aff; color:white; width:35px; height:35px; border-radius:8px; display:flex; justify-content:center; align-items:center; font-weight:bold; margin-left:10px;" id="notifIcon">⚠️</div>
-            <div style="display:flex; flex-direction:column; flex:1;">
-                <div id="notifTitle" style="font-size:12px; font-weight:bold;">النظام</div>
-                <div id="notifBody" style="font-size:11px; color:#666;">اضغط على الإشعار لإخفائه فوراً.</div>
-            </div>
-        </div>
-
-        <!-- الشاشة الرئيسية للنظام والأيقونات اللامعة المحسنة بدلاً من الايموجي -->
-        <div class="home-screen" id="homeGrid">
-            <div class="app-icon" id="icon-ffm" onclick="openAppWindow('app-ffm')"><div class="delete-badge can-delete" onclick="uninstallAppAction('ffm', event)">×</div><div class="icon-shape bg-ffm">FFM</div><div class="app-name">FFM</div></div>
-            <div class="app-icon" id="icon-aynts" onclick="openAppWindow('app-aynts')"><div class="delete-badge can-delete" onclick="uninstallAppAction('aynts', event)">×</div><div class="icon-shape bg-aynts">Aynts</div><div class="app-name">أينتس</div></div>
-            <div class="app-icon visible" id="icon-phone" onclick="openAppWindow('app-phone')"><div class="delete-badge">×</div><div class="icon-shape bg-phone">📱</div><div class="app-name">الهاتف</div></div>
-            <div class="app-icon visible" id="icon-camera" onclick="openAppWindow('app-camera')"><div class="delete-badge">×</div><div class="icon-shape bg-camera">📷</div><div class="app-name">الكاميرا</div></div>
-            <div class="app-icon visible" id="icon-gallery" onclick="openAppWindow('app-gallery')"><div class="delete-badge">×</div><div class="icon-shape bg-gallery">🖼️</div><div class="app-name">المعرض</div></div>
-            <div class="app-icon visible" id="icon-store" onclick="openAppWindow('app-store')"><div class="delete-badge">×</div><div class="icon-shape bg-store">App</div><div class="app-name">المتجر</div></div>
-            <div class="app-icon visible" id="icon-settings" onclick="openAppWindow('app-settings')"><div class="delete-badge">×</div><div class="icon-shape bg-settings">⚙️</div><div class="app-name">الإعدادات</div></div>
-        </div>
-
-        <!-- تطبيق FFM الكلاسيكي المطابق لـ BBM -->
-        <div id="app-ffm" class="app-window">
-            <div class="bbm-profile">
-                <span id="ffmPinDisplay" style="font-weight:bold; letter-spacing:1px;">PIN: FFFFFF</span>
-                <span style="color:#2ecc71;">🟢 متصل النبض</span>
-            </div>
-            <div class="bbm-chat-area" id="ffmChatBox"></div>
-            <div style="padding:8px; background:#f0f0f2; border-top:1px solid #ccc; display:flex; flex-direction:column; gap:4px;">
-                <input type="text" class="native-input" id="ffmField" placeholder="اكتب رسالة FFM الحرة هنا...">
-                <div style="display:flex; justify-content:space-between;">
-                    <button onclick="sendFfmMessageStream()" style="background:#1abc9c; color:white; padding:6px 15px; border:none; border-radius:5px; font-size:12px; font-weight:bold;">إرسال</button>
-                    <button onclick="triggerFfmPing()" style="background:#e74c3c; color:white; padding:6px 12px; border:none; border-radius:5px; font-size:11px; font-weight:bold;">PING 💥</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- تطبيق أينتس تويتر القديم المميز -->
-        <div id="app-aynts" class="app-window">
-            <div class="window-header" style="background:#55acee; color:white;">تويتر القديم (أينتس)</div>
-            <div class="tw-timeline" id="ayntsTimeline"></div>
-            <div style="padding:8px; background:white; border-top:1px solid #ddd;">
-                <input type="text" class="native-input" id="ayntsField" placeholder="ماذا يحدث الآن في أينتس؟...">
-                <button onclick="publishAyntsTweet()" style="width:100%; background:#55acee; color:white; padding:8px; border:none; border-radius:6px; font-weight:bold; font-size:13px; margin-top:3px;">تغريد الآن</button>
-            </div>
-        </div>
-
-        <!-- تطبيق الهاتف والدليل المطور -->
-        <div id="app-phone" class="app-window">
-            <div class="window-header">دليل الهاتف والاتصال</div>
-            <div class="window-content">
-                <div style="background:white; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #ddd; display:flex; flex-direction:column; gap:6px;">
-                    <input type="text" id="contactName" class="native-input" placeholder="اسم جهة الاتصال">
-                    <input type="number" id="contactPhone" class="native-input" placeholder="رقم الجوال">
-                    <button onclick="addNewContact()" style="background:#2ecc71; color:white; border:none; padding:8px; border-radius:6px; font-weight:bold;">حفظ في الدليل ➕</button>
-                </div>
-                <div id="phoneDirectory" style="display:flex; flex-direction:column; gap:5px;"></div>
-            </div>
-        </div>
-
-        <!-- تطبيق الكاميرا الفعلي المصلح تماماً (لا يترك علامة التسجيل تعمل بالخلفية) -->
-        <div id="app-camera" class="app-window">
-            <div class="window-header" style="background:#000; color:#fff; border:none;">الكاميرا الفردية حية</div>
-            <video id="camPreview" autoplay playsinline class="cam-stream"></video>
-            <canvas id="camCanvas" style="display:none;"></canvas>
-            <div style="height:80px; background:#000; display:flex; justify-content:center; align-items:center;">
-                <button onclick="snapPhotoFromStream()" style="width:55px; height:55px; background:#fff; border:4px solid #333; border-radius:50%; cursor:pointer; outline:none;"></button>
-            </div>
-        </div>
-
-        <!-- تطبيق معرض الصور المستقل لمشاهدة الصور كاملة وحذفها -->
-        <div id="app-gallery" class="app-window">
-            <div class="window-header">معرض الصور والاستوديو</div>
-            <div class="window-content">
-                <div id="galleryGrid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;"></div>
-            </div>
-        </div>
-
-        <!-- متجر التطبيقات الكلاسيكي لتنزيل FFM وأينتس -->
-        <div id="app-store" class="app-window">
-            <div class="window-header">متجر التطبيقات الأصلي</div>
-            <div class="window-content">
-                <div class="store-row">
-                    <div><b>تطبيق FFM (BBM الكلاسيكي)</b></div>
-                    <button id="btn-ffm" onclick="installAppAction('ffm')" style="background:#007aff; color:white; border:none; padding:6px 12px; border-radius:12px; font-size:11px; font-weight:bold;">تنزيل</button>
-                </div>
-                <div class="store-row">
-                    <div><b>تطبيق أينتس (تويتر 2012)</b></div>
-                    <button id="btn-aynts" onclick="installAppAction('aynts')" style="background:#007aff; color:white; border:none; padding:6px 12px; border-radius:12px; font-size:11px; font-weight:bold;">تنزيل</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- الإعدادات: تغيير الخلفية، وضع حذف التطبيقات وتثبيت ملف التعريف الصدقي -->
-        <div id="app-settings" class="app-window">
-            <div class="window-header">الإعدادات العادية</div>
-            <div class="window-content">
-                <div class="setting-item">
-                    <span>وضع تعديل وحذف التطبيقات</span>
-                    <button onclick="toggleAppEditMode()" id="editModeBtn" style="padding:4px 10px; background:#e74c3c; color:white; border:none; border-radius:4px; font-weight:bold; font-size:11px;">تفعيل الاهتزاز</button>
-                </div>
-                <div class="setting-item">
-                    <span>مظهر الخلفية الرئيسية</span>
-                    <select onchange="changeGlobalWallpaper(this.value)" style="padding:4px; font-size:12px;">
-                        <option value="linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)">الافتراضية الليلية الملونة</option>
-                        <option value="linear-gradient(to right, #243b55, #141e30)">زرقاء داكنة كلاسيك</option>
-                        <option value="linear-gradient(to right, #ed4264, #ffedbc)">تدرج دافئ ملون</option>
-                    </select>
-                </div>
-                <div class="setting-item" style="flex-direction:column; align-items:stretch; gap:6px;">
-                    <span style="font-weight:bold;">ثبّت التطبيق على شاشة آيفونك الصدقية:</span>
-                    <button onclick="downloadIosWebClipProfile()" style="background:#007aff; color:white; padding:8px; border:none; border-radius:6px; font-weight:bold; font-size:12px;">تحميل ملف تعريف الشاشة الرئيسية 📲</button>
-                </div>
-                <div class="setting-item" style="margin-top:auto;">
-                    <span>إعادة تهيئة الذاكرة الشاملة</span>
-                    <button onclick="localStorage.clear(); location.reload();" style="background:#c0392b; color:white; border:none; padding:5px 10px; border-radius:4px; font-size:11px;">مسح كل البيانات ⚠️</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- نافذة عرض الصورة بالكامل المضافة حديثاً عند النقر على صور الاستوديو -->
-        <div class="full-image-modal" id="imageModal" onclick="this.style.display='none'">
-            <img id="modalImgTarget" src="">
-            <p style="color:white; margin-top:15px; font-size:12px;">اضغط في أي مكان للعودة للمعرض</p>
-        </div>
-
-        <!-- زر الهوم العائم والمتحرك بالكامل (AssistiveTouch الساحب) -->
-        <div class="assistive-touch" id="floatingHomeButton">
-            <div class="inner-circle"></div>
-        </div>
-
+    <!-- 1. شاشة Splash -->
+    <div id="splash-screen" class="page active" style="justify-content: space-between; align-items: center; padding: 60px 20px 40px;">
+        <div class="app-logo" style="margin-top: 20%;">قِيَم</div>
+        <div style="font-size: 1.1rem; font-weight: 700;">جارِ الدخول..</div>
+        <div style="font-size: 1.4rem; font-weight: 900; border-top: 1px solid rgba(54, 34, 19, 0.1); padding-top: 15px; width: 80%; text-align:center;">قِيَمُكَ هِيَ مَبَادِئُك</div>
     </div>
 
-    <script>
-        // الذاكرة والمخزن المحلي
-        let appsState = JSON.parse(localStorage.getItem('sys_apps_state')) || { ffm: false, aynts: false };
-        let galleryData = JSON.parse(localStorage.getItem('sys_gallery_data')) || [];
-        let tweetsData = JSON.parse(localStorage.getItem('sys_tweets_data')) || [];
-        let ffmMessages = JSON.parse(localStorage.getItem('sys_ffm_messages')) || [];
-        let contactsData = JSON.parse(localStorage.getItem('sys_contacts_data')) || [{name:"الطوارئ", phone:"911"}];
+    <!-- 2. شاشة تسجيل الدخول -->
+    <div id="auth-screen" class="page" style="justify-content: center; align-items: center; padding: 20px;">
+        <div class="app-logo">قِيَم</div>
+        <div class="motto-list">
+            ١. دينك<br>
+            ٢. وطنك<br>
+            ٣. أنت
+        </div>
 
-        let activeCameraStream = null;
-        let isEditModeActive = false;
+        <button class="btn-action btn-google" onclick="loginWithGoogle()">
+            <i class="fa-brands fa-google"></i> المتابعة باستخدام Google
+        </button>
+        <button class="btn-action btn-apple" onclick="loginWithApple()">
+            <i class="fa-brands fa-apple"></i> المتابعة باستخدام Apple
+        </button>
+    </div>
 
-        window.addEventListener('DOMContentLoaded', () => {
-            initClockAndBattery();
-            refreshHomeAppsVisibility();
-            makeHomeButtonDraggable();
-            calculateStorageWeight();
-        });
+    <!-- 3. نافذة التعهد والالتزام -->
+    <div id="pledge-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-bottom: 15px; color: var(--accent-color);">تعهد والتزام</h3>
+            <div style="text-align: right; font-size: 0.95rem; line-height: 1.8; margin-bottom: 20px;">
+                <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; cursor: pointer;">
+                    <input type="checkbox" id="check-age" style="width: 18px; height: 18px;">
+                    <span>أتعهد بأن عمري 16 سنة فما فوق.</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="check-music" style="width: 18px; height: 18px;">
+                    <span>أتعهد أن لا أفتن أو أضع الموسيقى.</span>
+                </label>
+            </div>
+            <button class="btn-action" onclick="submitPledge()">أقر وأتعهد</button>
+        </div>
+    </div>
 
-        // تشغيل الساعة والبطارية الصدقية من الجهاز للآيفون
-        function initClockAndBattery() {
-            const updateTime = () => {
-                let d = new Date();
-                let h = d.getHours(); let m = d.getMinutes();
-                document.getElementById('liveClock').innerText = (h<10?'0':'')+h + ":" + (m<10?'0':'')+m;
-            };
-            setInterval(updateTime, 1000); updateTime();
+    <!-- 4. شاشة إكمال ملف المستخدم (لأول مرة) -->
+    <div id="setup-profile-screen" class="page" style="padding: 20px; overflow-y: auto;">
+        <h3 style="text-align: center; margin-bottom: 15px;">إكمال بيانات الحساب</h3>
+        
+        <div style="text-align: center;" onclick="document.getElementById('setup-avatar-input').click()">
+            <div class="profile-avatar" id="setup-avatar-display">
+                <i class="fa-solid fa-camera"></i>
+            </div>
+            <small style="opacity: 0.7;">الصورة الشخصية (اختياري)</small>
+            <input type="file" id="setup-avatar-input" accept="image/*" style="display: none;" onchange="loadSetupAvatar(event)">
+        </div>
 
-            if (navigator.getBattery) {
-                navigator.getBattery().then(battery => {
-                    const updateBatteryUi = () => {
-                        document.getElementById('realBatteryLabel').innerText = `🔋 ${Math.round(battery.level * 100)}%`;
-                    };
-                    updateBatteryUi();
-                    battery.addEventListener('levelchange', updateBatteryUi);
-                });
+        <div class="settings-card">
+            <div class="setting-item" style="width: 100%;">
+                <label>اليوزر (إنجليزي، 2-16 حرف):</label>
+                <input type="text" id="setup-username" class="input-edit" placeholder="e.g. faris_32" maxlength="16">
+                <span id="username-err" class="error-msg"></span>
+            </div>
+
+            <div class="setting-item" style="width: 100%;">
+                <label>الاسم الظاهر (أقصى حد 16 حرف):</label>
+                <input type="text" id="setup-name" class="input-edit" placeholder="مثال: فارس" maxlength="16" style="dir: rtl; text-align: right;">
+                <span id="name-err" class="error-msg"></span>
+            </div>
+        </div>
+
+        <button class="btn-action" onclick="saveNewProfile()" style="margin-top: 20px;">حفظ والبدء</button>
+    </div>
+
+    <!-- 5. شاشة التطبيق الرئيسية -->
+    <div id="main-app" class="page">
+        <div class="app-header">
+            <div class="home-tabs" id="home-tabs">
+                <span class="home-tab active" onclick="switchHomeTab('for-you', this)">لك</span>
+                <span style="opacity:0.3">|</span>
+                <span class="home-tab" onclick="switchHomeTab('following', this)">أتابعه</span>
+            </div>
+            <h4 id="header-title" style="display: none;">الرئيسية</h4>
+        </div>
+
+        <div class="content-area">
+            <div id="view-home" class="tab-view">
+                <div style="background-color: var(--card-bg); border-radius: 15px; height: 70vh; display: flex; justify-content: center; align-items: center;">
+                    <i class="fa-solid fa-play" style="font-size: 3rem; opacity: 0.4;"></i>
+                </div>
+            </div>
+            <div id="view-search" class="tab-view" style="display: none;">
+                <input type="text" placeholder="بحث..." class="input-edit" style="width: 100%; dir: rtl; text-align: right;">
+            </div>
+            <div id="view-upload" class="tab-view" style="display: none; text-align: center; padding-top: 50px;">
+                <i class="fa-solid fa-camera" style="font-size: 4rem;"></i>
+            </div>
+            <div id="view-notifications" class="tab-view" style="display: none;">
+                <p>لا توجد إشعارات حالياً</p>
+            </div>
+            <div id="view-profile" class="tab-view" style="display: none; text-align: center;">
+                <div class="profile-avatar" id="app-avatar"><i class="fa-solid fa-user"></i></div>
+                <h3 id="app-name">فارس</h3>
+                <p id="app-username" style="opacity: 0.7;">@_v3223v_</p>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchNav('home', this)"><i class="fa-solid fa-house"></i><span>الرئيسية</span></div>
+            <div class="nav-item" onclick="switchNav('search', this)"><i class="fa-solid fa-magnifying-glass"></i><span>البحث</span></div>
+            <div class="nav-item upload-btn" onclick="switchNav('upload', this)"><i class="fa-solid fa-plus"></i></div>
+            <div class="nav-item" onclick="switchNav('notifications', this)"><i class="fa-solid fa-bell"></i><span>الإشعارات</span></div>
+            <div class="nav-item" onclick="switchNav('profile', this)"><i class="fa-solid fa-user"></i><span>حسابي</span></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK Modules -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, OAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, query, collection, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAI23gvlRESb1Eivn5xjuq1y9U-pcixYsw",
+            authDomain: "fit-app-1c1a8.firebaseapp.com",
+            projectId: "fit-app-1c1a8",
+            storageBucket: "fit-app-1c1a8.firebasestorage.app",
+            messagingSenderId: "70249998607",
+            appId: "1:70249998607:web:129b8c7e919eb1152bb67a",
+            measurementId: "G-PD6NX9CH5B"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let selectedAvatarBase64 = "";
+
+        // التبديل التلقائي للشاشة
+        setTimeout(() => {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUser = user;
+                    checkUserSetup(user.uid);
+                } else {
+                    showPage('auth-screen');
+                }
+            });
+        }, 1500);
+
+        // تسجيل قوقل
+        window.loginWithGoogle = function() {
+            const provider = new GoogleAuthProvider();
+            signInWithPopup(auth, provider).catch(err => alert("خطأ في تسجيل قوقل: " + err.message));
+        };
+
+        // تسجيل ابل
+        window.loginWithApple = function() {
+            const provider = new OAuthProvider('apple.com');
+            signInWithPopup(auth, provider).catch(err => alert("خطأ في تسجيل أبل: " + err.message));
+        };
+
+        // التحقق من حساب المستخدم وتعهده
+        async function checkUserSetup(uid) {
+            const userDoc = await getDoc(doc(db, "users", uid));
+            if (userDoc.exists() && userDoc.data().username) {
+                const data = userDoc.data();
+                document.getElementById('app-name').innerText = data.name;
+                document.getElementById('app-username').innerText = "@" + data.username;
+                if(data.avatar) {
+                    document.getElementById('app-avatar').innerHTML = `<img src="${data.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                }
+                showPage('main-app');
             } else {
-                document.getElementById('realBatteryLabel').innerText = "🔋 88%";
+                document.getElementById('pledge-modal').style.display = 'flex';
             }
         }
 
-        // جعل زر الهوم المساعد (AssistiveTouch) قابلاً للسحب والتحريك بحرية تامة بالإصبع في أي زاوية
-        function makeHomeButtonDraggable() {
-            const btn = document.getElementById('floatingHomeButton');
-            const container = document.getElementById('phoneBox');
+        // حفظ التعهد والتنقل لشاشة الإعداد
+        window.submitPledge = function() {
+            const age = document.getElementById('check-age').checked;
+            const music = document.getElementById('check-music').checked;
 
-            let isDragging = false;
-            let startX, startY, currentX, currentY;
-
-            btn.addEventListener('touchstart', (e) => {
-                isDragging = true;
-                startX = e.touches[0].clientX - btn.offsetLeft;
-                startY = e.touches[0].clientY - btn.offsetTop;
-            }, {passive: true});
-
-            container.addEventListener('touchmove', (e) => {
-                if (!isDragging) return;
-                currentX = e.touches[0].clientX - startX;
-                currentY = e.touches[0].clientY - startY;
-
-                // منع الخروج عن أبعاد شاشة الجوال
-                if (currentX < 0) currentX = 0;
-                if (currentY < 25) currentY = 25; 
-                if (currentX > container.clientWidth - 50) currentX = container.clientWidth - 50;
-                if (currentY > container.clientHeight - 50) currentY = container.clientHeight - 50;
-
-                btn.style.left = currentX + 'px';
-                btn.style.top = currentY + 'px';
-                btn.style.bottom = 'auto';
-            }, {passive: true});
-
-            container.addEventListener('touchend', () => {
-                isDragging = false;
-            });
-
-            btn.addEventListener('click', () => {
-                if (!isDragging) returnToHomeScreenView();
-            });
-        }
-
-        // إغلاق الكاميرا حياً عند الخروج من التطبيق لمنع بقاء النقطة الخضراء في الآيفون الصدقي
-        function returnToHomeScreenView() {
-            if (activeCameraStream) {
-                activeCameraStream.getTracks().forEach(track => track.stop());
-                activeCameraStream = null;
-            }
-            document.querySelectorAll('.app-window').forEach(w => w.style.display = 'none');
-        }
-
-        function openAppWindow(id) {
-            document.querySelectorAll('.app-window').forEach(w => w.style.display = 'none');
-            document.getElementById(id).style.display = 'flex';
-
-            // تشغيل بث الكاميرا الحية فقط عند دخول التطبيق
-            if (id === 'app-camera') {
-                startLiveCameraStream();
-            } else if (id === 'app-gallery') {
-                renderGalleryGridItems();
-            } else if (id === 'app-ffm') {
-                renderFfmTimeline();
-            } else if (id === 'app-aynts') {
-                renderAyntsTimeline();
-            } else if (id === 'app-phone') {
-                renderPhoneDirectory();
-            }
-        }
-
-        // تشغيل تدفق الكاميرا الفعلي
-        async function startLiveCameraStream() {
-            try {
-                activeCameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
-                document.getElementById('camPreview').srcObject = activeCameraStream;
-            } catch (err) {
-                console.log("صلاحية الكاميرا الحية مطلوبة.");
-            }
-        }
-
-        function snapPhotoFromStream() {
-            const video = document.getElementById('camPreview');
-            const canvas = document.getElementById('camCanvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = video.videoWidth || 320;
-            canvas.height = video.videoHeight || 240;
-            try {
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                let imgData = canvas.toDataURL('image/jpeg', 0.6);
-                galleryData.unshift(imgData);
-                localStorage.setItem('sys_gallery_data', JSON.stringify(galleryData));
-                playNotificationSoundTone();
-                triggerTopNotification("الكاميرا الفردية", "تم التقاط صورة وحفظها بالاستوديو بنجاح!");
-                calculateStorageWeight();
-            } catch(e) {
-                alert("تعذر التقاط اللقطة الحية.");
-            }
-        }
-
-        // المعرض وعرض الصور كاملة بالحجم الحقيقي الفعلي
-        function renderGalleryGridItems() {
-            const grid = document.getElementById('galleryGrid');
-            grid.innerHTML = "";
-            if (galleryData.length === 0) {
-                grid.innerHTML = `<p style="grid-column:span 3; font-size:11px; color:#777; text-align:center; padding:15px;">الاستوديو فارغ حالياً.</p>`;
+            if (!age || !music) {
+                alert("يلزم الإقرار بالتعهدين للمتابعة.");
                 return;
             }
-            galleryData.forEach((img, idx) => {
-                grid.innerHTML += `
-                    <div style="position:relative; width:100%; height:95px;">
-                        <img src="${img}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;" onclick="maximizeGalleryPhotoView('${img}')">
-                        <button onclick="removeGalleryPhotoItem(${idx})" style="position:absolute; top:2px; left:2px; background:rgba(231,76,60,0.9); color:white; border:none; width:18px; height:18px; border-radius:50%; font-size:10px; font-weight:bold;">×</button>
-                    </div>`;
-            });
-        }
+            document.getElementById('pledge-modal').style.display = 'none';
+            showPage('setup-profile-screen');
+        };
 
-        function maximizeGalleryPhotoView(imgSrc) {
-            document.getElementById('modalImgTarget').src = imgSrc;
-            document.getElementById('imageModal').style.display = 'flex';
-        }
+        // حفظ ملف المستخدم مع التحقق من شروط اليوزر والاسم
+        window.saveNewProfile = async function() {
+            const usernameInput = document.getElementById('setup-username').value.trim();
+            const nameInput = document.getElementById('setup-name').value.trim();
 
-        function removeGalleryPhotoItem(idx) {
-            galleryData.splice(idx, 1);
-            localStorage.setItem('sys_gallery_data', JSON.stringify(galleryData));
-            renderGalleryGridItems();
-            calculateStorageWeight();
-        }
+            const usernameErr = document.getElementById('username-err');
+            const nameErr = document.getElementById('name-err');
 
-        // تطبيق الدردشة FFM المطابق للـ BBM بالكامل
-        function sendFfmMessageStream() {
-            let val = document.getElementById('ffmField').value.trim();
-            if (!val) return;
-            ffmMessages.push({ text: val, isMe: true });
-            localStorage.setItem('sys_ffm_messages', JSON.stringify(ffmMessages));
-            document.getElementById('ffmField').value = "";
-            renderFfmTimeline();
-            calculateStorageWeight();
-        }
+            usernameErr.style.display = 'none';
+            nameErr.style.display = 'none';
 
-        function triggerFfmPing() {
-            ffmMessages.push({ text: "💥 PING!!!", isMe: true });
-            localStorage.setItem('sys_ffm_messages', JSON.stringify(ffmMessages));
-            playNotificationSoundTone();
-            renderFfmTimeline();
-        }
-
-        function renderFfmTimeline() {
-            const box = document.getElementById('ffmChatBox');
-            box.innerHTML = "";
-            ffmMessages.forEach((m, idx) => {
-                box.innerHTML += `
-                    <div class="bbm-bubble ${m.isMe ? 'me' : ''}">
-                        <span class="bbm-del" onclick="deleteFfmChatItem(${idx})">حذف</span>
-                        ${m.text}
-                    </div>`;
-            });
-            box.scrollTop = box.scrollHeight;
-        }
-
-        function deleteFfmChatItem(idx) {
-            ffmMessages.splice(idx, 1);
-            localStorage.setItem('sys_ffm_messages', JSON.stringify(ffmMessages));
-            renderFfmTimeline();
-            calculateStorageWeight();
-        }
-
-        // منصة أينتس (تويتر القديم)
-        function publishAyntsTweet() {
-            let val = document.getElementById('ayntsField').value.trim();
-            if (!val) return;
-            tweetsData.unshift({ text: val });
-            localStorage.setItem('sys_tweets_data', JSON.stringify(tweetsData));
-            document.getElementById('ayntsField').value = "";
-            renderAyntsTimeline();
-            calculateStorageWeight();
-        }
-
-        function renderAyntsTimeline() {
-            const container = document.getElementById('ayntsTimeline');
-            container.innerHTML = "";
-            tweetsData.forEach((t, idx) => {
-                container.innerHTML += `
-                    <div class="tw-card">
-                        <span style="color:#e74c3c; font-size:10px; float:left; cursor:pointer;" onclick="deleteAyntsTweetItem(${idx})">حذف 🗑️</span>
-                        <b style="color:#55acee;">@Fares_User</b>
-                        <p style="margin-top:4px;">${t.text}</p>
-                    </div>`;
-            });
-        }
-
-        function deleteAyntsTweetItem(idx) {
-            tweetsData.splice(idx, 1);
-            localStorage.setItem('sys_tweets_data', JSON.stringify(tweetsData));
-            renderAyntsTimeline();
-            calculateStorageWeight();
-        }
-
-        // دليل الهاتف والاتصالات
-        function addNewContact() {
-            let name = document.getElementById('contactName').value.trim();
-            let phone = document.getElementById('contactPhone').value.trim();
-            if(!name || !phone) return;
-            contactsData.push({ name: name, phone: phone });
-            localStorage.setItem('sys_contacts_data', JSON.stringify(contactsData));
-            document.getElementById('contactName').value = "";
-            document.getElementById('contactPhone').value = "";
-            renderPhoneDirectory();
-        }
-
-        function renderPhoneDirectory() {
-            const div = document.getElementById('phoneDirectory');
-            div.innerHTML = "";
-            contactsData.forEach(c => {
-                div.innerHTML += `
-                    <div style="background:white; padding:8px; border-radius:6px; display:flex; justify-content:space-between; align-items:center; font-size:12px;">
-                        <div><b>${c.name}</b><br><small style="color:#666;">${c.phone}</small></div>
-                        <button onclick="alert('جاري الاتصال الصدقي بالرقم: ${c.phone}')" style="background:#2ecc71; color:white; border:none; padding:4px 10px; border-radius:4px;">اتصال 📞</button>
-                    </div>`;
-            });
-        }
-
-        // التحكم في تثبيت وحذف تطبيقات المتجر
-        function installAppAction(id) {
-            appsState[id] = true;
-            localStorage.setItem('sys_apps_state', JSON.stringify(appsState));
-            refreshHomeAppsVisibility();
-            calculateStorageWeight();
-            triggerTopNotification("متجر التطبيقات", `تم تثبيت تطبيق ${id === 'ffm'?'FFM':'أينتس'} بنجاح!`);
-        }
-
-        function uninstallAppAction(id, event) {
-            event.stopPropagation();
-            appsState[id] = false;
-            localStorage.setItem('sys_apps_state', JSON.stringify(appsState));
-            refreshHomeAppsVisibility();
-            calculateStorageWeight();
-        }
-
-        function refreshHomeAppsVisibility() {
-            if (appsState.ffm) {
-                document.getElementById('icon-ffm').classList.add('visible');
-                document.getElementById('btn-ffm').innerText = "تم التثبيت";
-            } else {
-                document.getElementById('icon-ffm').classList.remove('visible');
-                document.getElementById('btn-ffm').innerText = "تنزيل";
+            // شروط اسم المستخدم (إنجليزية، 2-16 حرف، رموز مسموحة فقط)
+            const usernameRegex = /^[a-zA-Z0-9._-]{2,16}$/;
+            if (!usernameRegex.test(usernameInput)) {
+                usernameErr.innerText = "اليوزر يجب أن يكون بالإنجليزية (2-16 حرف) بدون مسافات.";
+                usernameErr.style.display = 'block';
+                return;
             }
 
-            if (appsState.aynts) {
-                document.getElementById('icon-aynts').classList.add('visible');
-                document.getElementById('btn-aynts').innerText = "تم التثبيت";
-            } else {
-                document.getElementById('icon-aynts').classList.remove('visible');
-                document.getElementById('btn-aynts').innerText = "تنزيل";
+            // فحص تكرار اليوزر في قاعدة البيانات
+            const q = query(collection(db, "users"), where("username", "==", usernameInput));
+            const querySnap = await getDocs(q);
+            if (!querySnap.empty) {
+                usernameErr.innerText = "اسم المستخدم هذا مأخوذ بالفعل، اختر يوزر آخر.";
+                usernameErr.style.display = 'block';
+                return;
             }
-        }
 
-        function toggleAppEditMode() {
-            isEditModeActive = !isEditModeActive;
-            if(isEditModeActive) {
-                document.getElementById('homeGrid').classList.add('edit-mode');
-                document.getElementById('editModeBtn').innerText = "إيقاف الاهتزاز";
-            } else {
-                document.getElementById('homeGrid').classList.remove('edit-mode');
-                document.getElementById('editModeBtn').innerText = "تفعيل الاهتزاز";
+            // شروط الاسم الظاهر
+            if (nameInput.length < 1 || nameInput.length > 16) {
+                nameErr.innerText = "الاسم يجب أن لا يتعدى 16 حرفاً.";
+                nameErr.style.display = 'block';
+                return;
             }
+
+            // حفظ البيانات في Firestore
+            const now = new Date();
+            await setDoc(doc(db, "users", currentUser.uid), {
+                username: usernameInput,
+                name: nameInput,
+                avatar: selectedAvatarBase64,
+                lastUsernameChange: now,
+                lastNameChange: now,
+                createdAt: now
+            });
+
+            checkUserSetup(currentUser.uid);
+        };
+
+        window.loadSetupAvatar = function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedAvatarBase64 = e.target.result;
+                    document.getElementById('setup-avatar-display').innerHTML = `<img src="${selectedAvatarBase64}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
         }
 
-        function changeGlobalWallpaper(val) {
-            document.getElementById('appBg').style.background = val;
-        }
-
-        // احتساب مساحة الذاكرة للنصف قيقا بدقة وحساب الأوزان
-        function calculateStorageWeight() {
-            let photoMB = galleryData.length * 20.0;
-            let appsMB = (appsState.ffm ? 30.0 : 0) + (appsState.aynts ? 30.0 : 0);
-            let textMB = (tweetsData.length * 1.0) + (ffmMessages.length * 0.5);
-
-            let used = photoMB + appsMB + textMB;
-            let freeSpace = 512.00 - used;
-            if(freeSpace < 0) freeSpace = 0;
-
-            document.getElementById('storageCounter').innerText = freeSpace.toFixed(2) + " MB";
-        }
-
-        // توليد نغمة صوت الإشعار الصافية والنقية هندسياً (Audio Tone Generator)
-        function playNotificationSoundTone() {
-            try {
-                let ctx = new (window.AudioContext || window.webkitAudioContext)();
-                let osc = ctx.createOscillator();
-                let gain = ctx.createGain();
-                osc.type = "sine";
-                osc.frequency.setValueAtTime(587.33, ctx.currentTime); // نغمة D5 الكلاسيكية المريحة
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                osc.start();
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
-                osc.stop(ctx.currentTime + 0.15);
-            } catch (e) { console.log("الصوت يتطلب ضغطة حية."); }
-        }
-
-        // بانر الإشعارات العلوي المنبثق
-        function triggerTopNotification(title, body) {
-            document.getElementById('notifTitle').innerText = title;
-            document.getElementById('notifBody').innerText = body;
-            document.getElementById('notifBar').classList.add('show');
-        }
-
-        function dismissSystemNotification() {
-            document.getElementById('notifBar').classList.remove('show');
-        }
-
-        // الدالة الأسطورية لتوليد ملف تعريف آيفون حقيقي (.mobileconfig) وتنزيله لجوالك الصدقي!
-        function downloadIosWebClipProfile() {
-            const currentUrl = window.location.href;
-            const profileXml = `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>PayloadContent</key>
-    <array>
-        <dict>
-            <key>FullScreen</key>
-            <true/>
-            <key>Icon</key>
-            <data>
-            LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCg==
-            </data>
-            <key>IsRemovable</key>
-            <true/>
-            <key>Label</key>
-            <string>FFM OS</string>
-            <key>PayloadDescription</key>
-            <string>يضيف أيقونة النظام الكلاسيكي كشاشة رئيسية صدقية</string>
-            <key>PayloadDisplayName</key>
-            <string>FFM Web Clip</string>
-            <key>PayloadIdentifier</key>
-            <string>com.fares.nostalgia.webclip</string>
-            <key>PayloadType</key>
-            <string>com.apple.webclip.managed</string>
-            <key>PayloadUUID</key>
-            <string>12345678-1234-1234-1234-123456789012</string>
-            <key>PayloadVersion</key>
-            <integer>1</integer>
-            <key>URL</key>
-            <string>${currentUrl}</string>
-        </dict>
-    </array>
-    <key>PayloadDisplayName</key>
-    <string>ملف تعريف تطبيق FFM</string>
-    <key>PayloadIdentifier</key>
-    <string>com.fares.nostalgia.profile</string>
-    <key>PayloadRemovalDisallowed</key>
-    <false/>
-    <key>PayloadType</key>
-    <string>Configuration</string>
-    <key>PayloadUUID</key>
-    <string>87654321-4321-4321-4321-210987654321</string>
-    <key>PayloadVersion</key>
-    <integer>1</integer>
-</dict>
-</plist>`;
-
-            const blob = new Blob([profileXml], { type: 'application/x-apple-aspen-config' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'FfmOS_Shortcut.mobileconfig';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+        window.switchNav = function(tabName, element) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            document.querySelectorAll('.tab-view').forEach(view => view.style.display = 'none');
             
-            alert("تم تحميل ملف التعريف! اذهب الآن إلى إعدادات آيفونك الصدقي (تم تنزيل ملف التعريف) واضغط تثبيت لتظهر الأيقونة على شاشتك الرئيسية.");
-        }
+            const headerTitle = document.getElementById('header-title');
+            const homeTabs = document.getElementById('home-tabs');
+
+            if (tabName === 'home') {
+                document.getElementById('view-home').style.display = 'block';
+                homeTabs.style.display = 'flex';
+                headerTitle.style.display = 'none';
+            } else {
+                homeTabs.style.display = 'none';
+                headerTitle.style.display = 'block';
+                document.getElementById('view-' + tabName).style.display = 'block';
+                headerTitle.innerText = tabName === 'search' ? 'البحث' : tabName === 'upload' ? 'إنشاء' : tabName === 'notifications' ? 'الإشعارات' : 'حسابي';
+            }
+        };
+
+        window.switchHomeTab = function(tabType, element) {
+            document.querySelectorAll('.home-tab').forEach(tab => tab.classList.remove('active'));
+            element.classList.add('active');
+        };
     </script>
 </body>
 </html>
