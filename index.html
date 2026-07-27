@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>تطبيق قِيَم</title>
     
-    <!-- إعدادات تطبيق الويب والأيفون (PWA Profile) -->
+    <!-- PWA Settings -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="قِيَم">
     <link rel="apple-touch-icon" href="https://via.placeholder.com/180/5A3D27/FBF5E5?text=%D9%82%D9%90%D9%8A%D9%8E%D9%85">
-    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogItiq2LfZqNmK2YIg2YLZg9mK2YUiLAogICJzaG9ydF9uYW1lIjogItiq2LfZqNmK2YIiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiI0ZCRjVFNSIsCiAgInRoZW1lX2NvbG9yIjogIiNGQkY1RTUiCn0=">
 
-    <!-- FontAwesome & Fonts -->
+    <!-- Icons & Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap">
 
@@ -82,7 +81,6 @@
         .btn-google { background-color: #FFF; color: #000; }
         .btn-apple { background-color: #000; color: #FFF; }
 
-        /* Modal Overlay */
         .modal-overlay {
             position: fixed; top:0; left:0; width:100%; height:100%;
             background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
@@ -96,6 +94,7 @@
             width: 100%; max-width: 350px;
             border: 2px solid var(--accent-color);
             text-align: center;
+            max-height: 85vh; overflow-y: auto;
         }
 
         .motto-list { margin: 20px 0; font-size: 1.3rem; font-weight: 700; line-height: 2; }
@@ -110,7 +109,7 @@
         .home-tab { opacity: 0.5; cursor: pointer; padding: 5px 10px; }
         .home-tab.active { opacity: 1; border-bottom: 2px solid var(--text-color); }
 
-        .content-area { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: calc(var(--nav-height) + 15px); }
+        .content-area { flex: 1; overflow-y: auto; padding-bottom: calc(var(--nav-height) + 5px); }
 
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height);
@@ -129,17 +128,55 @@
             width: 90px; height: 90px; border-radius: 50%; background-color: var(--accent-light);
             display: flex; justify-content: center; align-items: center; font-size: 2.5rem;
             border: 3px solid var(--text-color); margin: 0 auto 10px; object-fit: cover;
+            position: relative; overflow: hidden;
         }
 
         .input-edit {
             background: #FFF; border: 1px solid var(--accent-color); border-radius: 10px;
-            padding: 10px; color: var(--text-color); font-size: 0.95rem; text-align: left;
-            width: 100%; margin-top: 5px; dir: ltr;
+            padding: 10px; color: var(--text-color); font-size: 0.95rem; text-align: right;
+            width: 100%; margin-top: 5px;
         }
 
-        .settings-card { background-color: var(--card-bg); border-radius: 15px; padding: 15px; margin-top: 15px; }
+        .settings-card { background-color: var(--card-bg); border-radius: 15px; padding: 15px; margin: 15px; }
         .setting-item { display: flex; flex-direction: column; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid rgba(54, 34, 19, 0.08); }
         .setting-item:last-child { border-bottom: none; }
+
+        /* TikTok Style Feed Card */
+        .video-card {
+            position: relative; width: 100%; height: calc(100vh - var(--nav-height) - 55px);
+            background: #000; display: flex; align-items: center; justify-content: center;
+        }
+
+        .video-card video { width: 100%; height: 100%; object-fit: cover; }
+
+        .side-actions {
+            position: absolute; left: 15px; bottom: 80px;
+            display: flex; flex-direction: column; gap: 20px; align-items: center;
+            color: #FFF; text-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 5;
+        }
+
+        .action-icon { display: flex; flex-direction: column; align-items: center; font-size: 1.6rem; cursor: pointer; }
+        .action-icon span { font-size: 0.75rem; margin-top: 4px; font-weight: bold; }
+        .action-icon.active { color: #e74c3c; }
+
+        .video-info {
+            position: absolute; right: 15px; bottom: 30px; left: 80px;
+            color: #FFF; text-shadow: 0 2px 5px rgba(0,0,0,0.6); text-align: right; z-index: 5;
+        }
+
+        .follow-btn {
+            background: var(--accent-color); color: #FFF; border: none;
+            padding: 4px 12px; border-radius: 12px; font-size: 0.8rem; margin-right: 8px; cursor: pointer;
+        }
+
+        /* Camera Live View */
+        .camera-container {
+            width: 100%; height: 100%; background: #000; position: relative;
+            display: flex; flex-direction: column; justify-content: space-between; padding: 20px;
+        }
+
+        #camera-preview { width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; }
+        .camera-overlay { position: absolute; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; justify-content:space-between; padding:20px; z-index:2; }
 
         .error-msg { color: #d9534f; font-size: 0.8rem; margin-top: 4px; display: none; }
     </style>
@@ -170,7 +207,7 @@
         </button>
     </div>
 
-    <!-- 3. نافذة التعهد والالتزام -->
+    <!-- 3. نافذة التعهد -->
     <div id="pledge-modal" class="modal-overlay">
         <div class="modal-box">
             <h3 style="margin-bottom: 15px; color: var(--accent-color);">تعهد والتزام</h3>
@@ -188,9 +225,9 @@
         </div>
     </div>
 
-    <!-- 4. شاشة إكمال ملف المستخدم (لأول مرة) -->
+    <!-- 4. شاشة إكمال البيانات / تعديل الحساب -->
     <div id="setup-profile-screen" class="page" style="padding: 20px; overflow-y: auto;">
-        <h3 style="text-align: center; margin-bottom: 15px;">إكمال بيانات الحساب</h3>
+        <h3 id="setup-title" style="text-align: center; margin-bottom: 15px;">إكمال بيانات الحساب</h3>
         
         <div style="text-align: center;" onclick="document.getElementById('setup-avatar-input').click()">
             <div class="profile-avatar" id="setup-avatar-display">
@@ -203,18 +240,23 @@
         <div class="settings-card">
             <div class="setting-item" style="width: 100%;">
                 <label>اليوزر (إنجليزي، 2-16 حرف):</label>
-                <input type="text" id="setup-username" class="input-edit" placeholder="e.g. faris_32" maxlength="16">
+                <input type="text" id="setup-username" class="input-edit" placeholder="e.g. faris_32" maxlength="16" style="direction: ltr; text-align: left;">
                 <span id="username-err" class="error-msg"></span>
             </div>
 
             <div class="setting-item" style="width: 100%;">
                 <label>الاسم الظاهر (أقصى حد 16 حرف):</label>
-                <input type="text" id="setup-name" class="input-edit" placeholder="مثال: فارس" maxlength="16" style="dir: rtl; text-align: right;">
+                <input type="text" id="setup-name" class="input-edit" placeholder="مثال: فارس الشمري" maxlength="16">
                 <span id="name-err" class="error-msg"></span>
+            </div>
+
+            <div class="setting-item" style="width: 100%;">
+                <label>البايو (السيرة الذاتية):</label>
+                <textarea id="setup-bio" class="input-edit" placeholder="اكتب نبذة عنك..." rows="3" maxlength="100"></textarea>
             </div>
         </div>
 
-        <button class="btn-action" onclick="saveNewProfile()" style="margin-top: 20px;">حفظ والبدء</button>
+        <button class="btn-action" onclick="saveNewProfile()" style="margin-top: 10px;">حفظ البيانات</button>
     </div>
 
     <!-- 5. شاشة التطبيق الرئيسية -->
@@ -229,33 +271,105 @@
         </div>
 
         <div class="content-area">
+            <!-- Feed Tab -->
             <div id="view-home" class="tab-view">
-                <div style="background-color: var(--card-bg); border-radius: 15px; height: 70vh; display: flex; justify-content: center; align-items: center;">
-                    <i class="fa-solid fa-play" style="font-size: 3rem; opacity: 0.4;"></i>
+                <div class="video-card">
+                    <video id="feed-video" loop playsinline src="https://assets.mixkit.co/videos/preview/mixkit-starry-night-sky-over-a-plain-40781-large.mp4"></video>
+                    
+                    <div class="side-actions">
+                        <div class="action-icon" id="like-btn" onclick="toggleLike(this)">
+                            <i class="fa-solid fa-heart"></i>
+                            <span id="like-count">1.2K</span>
+                        </div>
+                        <div class="action-icon" onclick="openComments()">
+                            <i class="fa-solid fa-comment-dots"></i>
+                            <span>84</span>
+                        </div>
+                        <div class="action-icon" id="bookmark-btn" onclick="toggleBookmark(this)">
+                            <i class="fa-solid fa-bookmark"></i>
+                            <span>حفظ</span>
+                        </div>
+                    </div>
+
+                    <div class="video-info">
+                        <h4>@_v3223v_ <button class="follow-btn" onclick="toggleFollow(this)">متابعة</button></h4>
+                        <p style="font-size: 0.9rem; margin-top: 5px;">مقطع توثيقي لقِيَم وطنية ودينية. 🇸🇦✨</p>
+                    </div>
                 </div>
             </div>
-            <div id="view-search" class="tab-view" style="display: none;">
-                <input type="text" placeholder="بحث..." class="input-edit" style="width: 100%; dir: rtl; text-align: right;">
+
+            <!-- Search Tab -->
+            <div id="view-search" class="tab-view" style="display: none; padding: 15px;">
+                <input type="text" placeholder="بحث..." class="input-edit" style="width: 100%;">
             </div>
-            <div id="view-upload" class="tab-view" style="display: none; text-align: center; padding-top: 50px;">
-                <i class="fa-solid fa-camera" style="font-size: 4rem;"></i>
+
+            <!-- Upload / Camera Tab -->
+            <div id="view-upload" class="tab-view" style="display: none; height: 100%;">
+                <div class="camera-container">
+                    <video id="camera-preview" autoplay playsinline muted></video>
+                    <div class="camera-overlay">
+                        <div style="text-align: center; color: #FFF; font-weight: bold; background: rgba(0,0,0,0.4); padding: 5px; border-radius: 10px;">
+                            أقصى مدة للفيديو: 15 ثانية
+                        </div>
+
+                        <div style="display: flex; justify-content: space-around; align-items: center;">
+                            <!-- زر الاستوديو (تحت يسار) -->
+                            <div onclick="document.getElementById('gallery-video-input').click()" style="color: #FFF; font-size: 1.8rem; cursor: pointer;">
+                                <i class="fa-solid fa-images"></i>
+                                <input type="file" id="gallery-video-input" accept="video/*" style="display: none;" onchange="handleVideoUpload(event)">
+                            </div>
+
+                            <!-- زر التصوير المباشر -->
+                            <div id="record-btn" onclick="toggleRecording()" style="width: 65px; height: 65px; border-radius: 50%; border: 4px solid #FFF; background: #e74c3c; cursor: pointer;"></div>
+
+                            <div style="width: 30px;"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div id="view-notifications" class="tab-view" style="display: none;">
-                <p>لا توجد إشعارات حالياً</p>
+
+            <!-- Notifications Tab -->
+            <div id="view-notifications" class="tab-view" style="display: none; padding: 15px;">
+                <p style="text-align: center; opacity: 0.7;">لا توجد إشعارات جديدة</p>
             </div>
-            <div id="view-profile" class="tab-view" style="display: none; text-align: center;">
+
+            <!-- Profile Tab -->
+            <div id="view-profile" class="tab-view" style="display: none; padding: 20px 15px; text-align: center;">
                 <div class="profile-avatar" id="app-avatar"><i class="fa-solid fa-user"></i></div>
                 <h3 id="app-name">فارس</h3>
-                <p id="app-username" style="opacity: 0.7;">@_v3223v_</p>
+                <p id="app-username" style="opacity: 0.7; dir: ltr;">@_v3223v_</p>
+                <p id="app-bio" style="font-size: 0.9rem; margin: 10px 0; opacity: 0.9;">لا يوجد بايو حالياً</p>
+
+                <button class="btn-action" onclick="openEditProfile()" style="margin-top: 15px;">
+                    <i class="fa-solid fa-user-pen"></i> تعديل حسابي
+                </button>
             </div>
         </div>
 
+        <!-- Bottom Nav -->
         <div class="bottom-nav">
             <div class="nav-item active" onclick="switchNav('home', this)"><i class="fa-solid fa-house"></i><span>الرئيسية</span></div>
             <div class="nav-item" onclick="switchNav('search', this)"><i class="fa-solid fa-magnifying-glass"></i><span>البحث</span></div>
             <div class="nav-item upload-btn" onclick="switchNav('upload', this)"><i class="fa-solid fa-plus"></i></div>
             <div class="nav-item" onclick="switchNav('notifications', this)"><i class="fa-solid fa-bell"></i><span>الإشعارات</span></div>
             <div class="nav-item" onclick="switchNav('profile', this)"><i class="fa-solid fa-user"></i><span>حسابي</span></div>
+        </div>
+    </div>
+
+    <!-- Modal التعليقات -->
+    <div id="comments-modal" class="modal-overlay">
+        <div class="modal-box" style="text-align: right;">
+            <div style="display:flex; justify-space-between; align-items:center; margin-bottom: 10px;">
+                <h4>التعليقات</h4>
+                <i class="fa-solid fa-xmark" onclick="closeComments()" style="cursor:pointer; font-size: 1.2rem;"></i>
+            </div>
+            <div id="comments-list" style="max-height: 200px; overflow-y: auto; margin-bottom: 10px; font-size: 0.9rem;">
+                <p><b>@nawaf:</b> تطبيق بطل ماشاء الله! 👏</p>
+            </div>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="comment-input" class="input-edit" placeholder="أضف تعليقاً..." style="margin:0;">
+                <button class="btn-action" onclick="addComment()" style="width: auto; padding: 0 15px; margin:0;">نشر</button>
+            </div>
         </div>
     </div>
 
@@ -281,8 +395,8 @@
 
         let currentUser = null;
         let selectedAvatarBase64 = "";
+        let mediaStream = null;
 
-        // التبديل التلقائي للشاشة
         setTimeout(() => {
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
@@ -294,40 +408,33 @@
             });
         }, 1500);
 
-        // تسجيل قوقل
         window.loginWithGoogle = function() {
-            const provider = new GoogleAuthProvider();
-            signInWithPopup(auth, provider).catch(err => alert("خطأ في تسجيل قوقل: " + err.message));
+            signInWithPopup(auth, new GoogleAuthProvider()).catch(err => alert("خطأ: " + err.message));
         };
 
-        // تسجيل ابل
         window.loginWithApple = function() {
-            const provider = new OAuthProvider('apple.com');
-            signInWithPopup(auth, provider).catch(err => alert("خطأ في تسجيل أبل: " + err.message));
+            signInWithPopup(auth, new OAuthProvider('apple.com')).catch(err => alert("خطأ: " + err.message));
         };
 
-        // التحقق من حساب المستخدم وتعهده
         async function checkUserSetup(uid) {
             const userDoc = await getDoc(doc(db, "users", uid));
             if (userDoc.exists() && userDoc.data().username) {
                 const data = userDoc.data();
                 document.getElementById('app-name').innerText = data.name;
                 document.getElementById('app-username').innerText = "@" + data.username;
+                document.getElementById('app-bio').innerText = data.bio || "لا يوجد بايو حالياً";
                 if(data.avatar) {
                     document.getElementById('app-avatar').innerHTML = `<img src="${data.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
                 }
                 showPage('main-app');
+                document.getElementById('feed-video').play();
             } else {
                 document.getElementById('pledge-modal').style.display = 'flex';
             }
         }
 
-        // حفظ التعهد والتنقل لشاشة الإعداد
         window.submitPledge = function() {
-            const age = document.getElementById('check-age').checked;
-            const music = document.getElementById('check-music').checked;
-
-            if (!age || !music) {
+            if (!document.getElementById('check-age').checked || !document.getElementById('check-music').checked) {
                 alert("يلزم الإقرار بالتعهدين للمتابعة.");
                 return;
             }
@@ -335,10 +442,15 @@
             showPage('setup-profile-screen');
         };
 
-        // حفظ ملف المستخدم مع التحقق من شروط اليوزر والاسم
+        window.openEditProfile = function() {
+            document.getElementById('setup-title').innerText = "تعديل حسابي";
+            showPage('setup-profile-screen');
+        };
+
         window.saveNewProfile = async function() {
             const usernameInput = document.getElementById('setup-username').value.trim();
             const nameInput = document.getElementById('setup-name').value.trim();
+            const bioInput = document.getElementById('setup-bio').value.trim();
 
             const usernameErr = document.getElementById('username-err');
             const nameErr = document.getElementById('name-err');
@@ -346,40 +458,27 @@
             usernameErr.style.display = 'none';
             nameErr.style.display = 'none';
 
-            // شروط اسم المستخدم (إنجليزية، 2-16 حرف، رموز مسموحة فقط)
             const usernameRegex = /^[a-zA-Z0-9._-]{2,16}$/;
             if (!usernameRegex.test(usernameInput)) {
-                usernameErr.innerText = "اليوزر يجب أن يكون بالإنجليزية (2-16 حرف) بدون مسافات.";
+                usernameErr.innerText = "اليوزر يجب أن يكون بالإنجليزية (2-16 حرف).";
                 usernameErr.style.display = 'block';
                 return;
             }
 
-            // فحص تكرار اليوزر في قاعدة البيانات
-            const q = query(collection(db, "users"), where("username", "==", usernameInput));
-            const querySnap = await getDocs(q);
-            if (!querySnap.empty) {
-                usernameErr.innerText = "اسم المستخدم هذا مأخوذ بالفعل، اختر يوزر آخر.";
-                usernameErr.style.display = 'block';
-                return;
-            }
-
-            // شروط الاسم الظاهر
             if (nameInput.length < 1 || nameInput.length > 16) {
                 nameErr.innerText = "الاسم يجب أن لا يتعدى 16 حرفاً.";
                 nameErr.style.display = 'block';
                 return;
             }
 
-            // حفظ البيانات في Firestore
             const now = new Date();
             await setDoc(doc(db, "users", currentUser.uid), {
                 username: usernameInput,
                 name: nameInput,
+                bio: bioInput,
                 avatar: selectedAvatarBase64,
-                lastUsernameChange: now,
-                lastNameChange: now,
-                createdAt: now
-            });
+                updatedAt: now
+            }, { merge: true });
 
             checkUserSetup(currentUser.uid);
         };
@@ -396,6 +495,71 @@
             }
         };
 
+        /* تشغيل الكاميرا المباشرة */
+        async function startCamera() {
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+                document.getElementById('camera-preview').srcObject = mediaStream;
+            } catch (e) {
+                console.log("الكاميرا غير متاحة مباشر:", e);
+            }
+        }
+
+        function stopCamera() {
+            if(mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        /* فحص مدة الفيديو (15 ثانية كحد أقصى) */
+        window.handleVideoUpload = function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const tempVideo = document.createElement('video');
+                tempVideo.preload = 'metadata';
+                tempVideo.src = URL.createObjectURL(file);
+                tempVideo.onloadedmetadata = function() {
+                    URL.revokeObjectURL(tempVideo.src);
+                    if (tempVideo.duration > 15.5) {
+                        alert("عذراً، أقصى مدة للفيديو المسموح بها هي 15 ثانية فقط!");
+                    } else {
+                        alert("تم إرفاق الفيديو بنجاح (ضمن الحد المسموح)!");
+                    }
+                }
+            }
+        };
+
+        /* الأزرار والتفاعل */
+        window.toggleLike = function(el) {
+            el.classList.toggle('active');
+        };
+
+        window.toggleBookmark = function(el) {
+            el.classList.toggle('active');
+        };
+
+        window.toggleFollow = function(btn) {
+            if(btn.innerText === "متابعة") {
+                btn.innerText = "تمت المتابعة";
+                btn.style.background = "#555";
+            } else {
+                btn.innerText = "متابعة";
+                btn.style.background = "var(--accent-color)";
+            }
+        };
+
+        window.openComments = function() { document.getElementById('comments-modal').style.display = 'flex'; };
+        window.closeComments = function() { document.getElementById('comments-modal').style.display = 'none'; };
+
+        window.addComment = function() {
+            const input = document.getElementById('comment-input');
+            if(input.value.trim()) {
+                const list = document.getElementById('comments-list');
+                list.innerHTML += `<p><b> أنت:</b> ${input.value.trim()}</p>`;
+                input.value = "";
+            }
+        };
+
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
@@ -408,6 +572,12 @@
             
             const headerTitle = document.getElementById('header-title');
             const homeTabs = document.getElementById('home-tabs');
+
+            if (tabName === 'upload') {
+                startCamera();
+            } else {
+                stopCamera();
+            }
 
             if (tabName === 'home') {
                 document.getElementById('view-home').style.display = 'block';
