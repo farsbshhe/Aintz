@@ -9,9 +9,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="قِيَم">
-    <link rel="apple-touch-icon" href="https://via.placeholder.com/180/5A3D27/FBF5E5?text=%D9%82%D9%90%D9%8A%D9%8E%D9%85">
 
-    <!-- Icons & Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap">
 
@@ -28,10 +26,8 @@
         * {
             box-sizing: border-box;
             margin: 0; padding: 0;
-            font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Tajawal', sans-serif;
             user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -40,76 +36,71 @@
             overflow: hidden;
             background-color: var(--bg-color);
             color: var(--text-color);
-            touch-action: manipulation;
         }
 
         .page {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column;
             opacity: 0; pointer-events: none;
-            transform: translate3d(0, 0, 0) scale(0.98);
-            transition: transform 0.25s ease, opacity 0.25s ease;
-            background-color: var(--bg-color);
-            z-index: 1;
+            transition: all 0.25s ease;
+            background-color: var(--bg-color); z-index: 1;
         }
 
-        .page.active {
-            opacity: 1; pointer-events: auto;
-            transform: translate3d(0, 0, 0) scale(1);
-            z-index: 2;
-        }
+        .page.active { opacity: 1; pointer-events: auto; z-index: 2; }
 
         .btn-action {
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid rgba(54, 34, 19, 0.15);
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-size: 1rem; font-weight: 700;
+            background-color: var(--card-bg); color: var(--text-color);
+            border: 1px solid rgba(54, 34, 19, 0.15); padding: 12px 20px;
+            border-radius: 25px; font-size: 1rem; font-weight: 700;
             cursor: pointer; width: 100%; margin: 8px 0;
-            box-shadow: 0 4px 10px rgba(54, 34, 19, 0.05);
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: all 0.15s ease;
         }
 
-        .btn-action:active {
-            background-color: var(--accent-color);
-            color: #FFF; transform: scale(0.96);
-        }
-
-        .btn-google { background-color: #FFF; color: #000; }
-        .btn-apple { background-color: #000; color: #FFF; }
-
-        .modal-overlay {
+        /* Half Bottom Sheet (التعليقات تأخذ نصف الشاشة) */
+        .bottom-sheet-overlay {
             position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-            z-index: 100; display: none; justify-content: center; align-items: center;
-            padding: 20px;
+            background: rgba(0,0,0,0.5); z-index: 200; display: none;
+            align-items: flex-end;
         }
 
-        .modal-box {
-            background: var(--bg-color);
-            border-radius: 20px; padding: 25px;
-            width: 100%; max-width: 350px;
-            border: 2px solid var(--accent-color);
-            text-align: center;
-            max-height: 85vh; overflow-y: auto;
+        .bottom-sheet {
+            background: var(--bg-color); width: 100%; height: 50vh;
+            border-top-left-radius: 20px; border-top-right-radius: 20px;
+            padding: 15px; display: flex; flex-direction: column;
+            animation: slideUp 0.25s ease-out;
         }
 
-        .motto-list { margin: 20px 0; font-size: 1.3rem; font-weight: 700; line-height: 2; }
-        .app-logo { font-size: 4.5rem; font-weight: 900; color: var(--text-color); text-align: center; }
-
-        .app-header {
-            height: 55px; display: flex; align-items: center; justify-content: center;
-            border-bottom: 1px solid rgba(54, 34, 19, 0.1); position: relative;
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
         }
 
-        .home-tabs { display: flex; gap: 20px; font-size: 1.1rem; font-weight: 700; }
-        .home-tab { opacity: 0.5; cursor: pointer; padding: 5px 10px; }
-        .home-tab.active { opacity: 1; border-bottom: 2px solid var(--text-color); }
+        /* Camera & Video Editor */
+        .camera-container {
+            width: 100%; height: 100%; background: #000; position: relative;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
 
-        .content-area { flex: 1; overflow-y: auto; padding-bottom: calc(var(--nav-height) + 5px); }
+        #camera-preview, #editor-preview { width: 100%; height: 100%; object-fit: cover; }
+
+        .timer-badge {
+            position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
+            background: rgba(231, 76, 60, 0.9); color: #FFF;
+            padding: 6px 18px; border-radius: 20px; font-size: 1.2rem; font-weight: bold;
+            display: none; z-index: 10;
+        }
+
+        .editor-text-overlay {
+            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            color: #FFF; font-size: 1.8rem; font-weight: bold; text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+            pointer-events: none; text-align: center;
+        }
+
+        /* TikTok Style Side Icons */
+        .side-actions {
+            position: absolute; left: 15px; bottom: 80px;
+            display: flex; flex-direction: column; gap: 20px; color: #FFF; z-index: 5;
+        }
 
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height);
@@ -118,483 +109,288 @@
         }
 
         .nav-item { display: flex; flex-direction: column; align-items: center; opacity: 0.5; font-size: 0.75rem; font-weight: 700; gap: 4px; cursor: pointer; width: 20%; }
-        .nav-item i { font-size: 1.3rem; }
-        .nav-item.active { opacity: 1; transform: scale(1.05); }
-
-        .nav-item.upload-btn { opacity: 1; }
+        .nav-item.active { opacity: 1; }
         .nav-item.upload-btn i { background-color: var(--text-color); color: var(--bg-color); padding: 8px 14px; border-radius: 12px; }
-
-        .profile-avatar {
-            width: 90px; height: 90px; border-radius: 50%; background-color: var(--accent-light);
-            display: flex; justify-content: center; align-items: center; font-size: 2.5rem;
-            border: 3px solid var(--text-color); margin: 0 auto 10px; object-fit: cover;
-            position: relative; overflow: hidden;
-        }
-
-        .input-edit {
-            background: #FFF; border: 1px solid var(--accent-color); border-radius: 10px;
-            padding: 10px; color: var(--text-color); font-size: 0.95rem; text-align: right;
-            width: 100%; margin-top: 5px;
-        }
-
-        .settings-card { background-color: var(--card-bg); border-radius: 15px; padding: 15px; margin: 15px; }
-        .setting-item { display: flex; flex-direction: column; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid rgba(54, 34, 19, 0.08); }
-        .setting-item:last-child { border-bottom: none; }
-
-        /* TikTok Style Feed Card */
-        .video-card {
-            position: relative; width: 100%; height: calc(100vh - var(--nav-height) - 55px);
-            background: #000; display: flex; align-items: center; justify-content: center;
-        }
-
-        .video-card video { width: 100%; height: 100%; object-fit: cover; }
-
-        .side-actions {
-            position: absolute; left: 15px; bottom: 80px;
-            display: flex; flex-direction: column; gap: 20px; align-items: center;
-            color: #FFF; text-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 5;
-        }
-
-        .action-icon { display: flex; flex-direction: column; align-items: center; font-size: 1.6rem; cursor: pointer; }
-        .action-icon span { font-size: 0.75rem; margin-top: 4px; font-weight: bold; }
-        .action-icon.active { color: #e74c3c; }
-
-        .video-info {
-            position: absolute; right: 15px; bottom: 30px; left: 80px;
-            color: #FFF; text-shadow: 0 2px 5px rgba(0,0,0,0.6); text-align: right; z-index: 5;
-        }
-
-        .follow-btn {
-            background: var(--accent-color); color: #FFF; border: none;
-            padding: 4px 12px; border-radius: 12px; font-size: 0.8rem; margin-right: 8px; cursor: pointer;
-        }
-
-        /* Camera Live View */
-        .camera-container {
-            width: 100%; height: 100%; background: #000; position: relative;
-            display: flex; flex-direction: column; justify-content: space-between; padding: 20px;
-        }
-
-        #camera-preview { width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; }
-        .camera-overlay { position: absolute; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; justify-content:space-between; padding:20px; z-index:2; }
-
-        .error-msg { color: #d9534f; font-size: 0.8rem; margin-top: 4px; display: none; }
     </style>
 </head>
 <body>
 
-    <!-- 1. شاشة Splash -->
-    <div id="splash-screen" class="page active" style="justify-content: space-between; align-items: center; padding: 60px 20px 40px;">
-        <div class="app-logo" style="margin-top: 20%;">قِيَم</div>
-        <div style="font-size: 1.1rem; font-weight: 700;">جارِ الدخول..</div>
-        <div style="font-size: 1.4rem; font-weight: 900; border-top: 1px solid rgba(54, 34, 19, 0.1); padding-top: 15px; width: 80%; text-align:center;">قِيَمُكَ هِيَ مَبَادِئُك</div>
+    <!-- زر تحميل ملف التعريف للأيفون (PWA Profile) -->
+    <div id="pwa-install-banner" style="background: var(--accent-color); color: #FFF; padding: 10px; text-align: center; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+        <span>📲 حمّل تطبيق قِيَم على شاشة الأيفون</span>
+        <button onclick="downloadMobileConfig()" style="background: var(--card-bg); color: var(--text-color); border: none; padding: 5px 12px; border-radius: 12px; font-weight: bold; cursor: pointer;">تحميل الملف</button>
     </div>
 
-    <!-- 2. شاشة تسجيل الدخول -->
-    <div id="auth-screen" class="page" style="justify-content: center; align-items: center; padding: 20px;">
-        <div class="app-logo">قِيَم</div>
-        <div class="motto-list">
-            ١. دينك<br>
-            ٢. وطنك<br>
-            ٣. أنت
-        </div>
-
-        <button class="btn-action btn-google" onclick="loginWithGoogle()">
-            <i class="fa-brands fa-google"></i> المتابعة باستخدام Google
-        </button>
-        <button class="btn-action btn-apple" onclick="loginWithApple()">
-            <i class="fa-brands fa-apple"></i> المتابعة باستخدام Apple
-        </button>
-    </div>
-
-    <!-- 3. نافذة التعهد -->
-    <div id="pledge-modal" class="modal-overlay">
-        <div class="modal-box">
-            <h3 style="margin-bottom: 15px; color: var(--accent-color);">تعهد والتزام</h3>
-            <div style="text-align: right; font-size: 0.95rem; line-height: 1.8; margin-bottom: 20px;">
-                <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; cursor: pointer;">
-                    <input type="checkbox" id="check-age" style="width: 18px; height: 18px;">
-                    <span>أتعهد بأن عمري 16 سنة فما فوق.</span>
-                </label>
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                    <input type="checkbox" id="check-music" style="width: 18px; height: 18px;">
-                    <span>أتعهد أن لا أفتن أو أضع الموسيقى.</span>
-                </label>
-            </div>
-            <button class="btn-action" onclick="submitPledge()">أقر وأتعهد</button>
-        </div>
-    </div>
-
-    <!-- 4. شاشة إكمال البيانات / تعديل الحساب -->
-    <div id="setup-profile-screen" class="page" style="padding: 20px; overflow-y: auto;">
-        <h3 id="setup-title" style="text-align: center; margin-bottom: 15px;">إكمال بيانات الحساب</h3>
-        
-        <div style="text-align: center;" onclick="document.getElementById('setup-avatar-input').click()">
-            <div class="profile-avatar" id="setup-avatar-display">
-                <i class="fa-solid fa-camera"></i>
-            </div>
-            <small style="opacity: 0.7;">الصورة الشخصية (اختياري)</small>
-            <input type="file" id="setup-avatar-input" accept="image/*" style="display: none;" onchange="loadSetupAvatar(event)">
-        </div>
-
-        <div class="settings-card">
-            <div class="setting-item" style="width: 100%;">
-                <label>اليوزر (إنجليزي، 2-16 حرف):</label>
-                <input type="text" id="setup-username" class="input-edit" placeholder="e.g. faris_32" maxlength="16" style="direction: ltr; text-align: left;">
-                <span id="username-err" class="error-msg"></span>
-            </div>
-
-            <div class="setting-item" style="width: 100%;">
-                <label>الاسم الظاهر (أقصى حد 16 حرف):</label>
-                <input type="text" id="setup-name" class="input-edit" placeholder="مثال: فارس الشمري" maxlength="16">
-                <span id="name-err" class="error-msg"></span>
-            </div>
-
-            <div class="setting-item" style="width: 100%;">
-                <label>البايو (السيرة الذاتية):</label>
-                <textarea id="setup-bio" class="input-edit" placeholder="اكتب نبذة عنك..." rows="3" maxlength="100"></textarea>
-            </div>
-        </div>
-
-        <button class="btn-action" onclick="saveNewProfile()" style="margin-top: 10px;">حفظ البيانات</button>
-    </div>
-
-    <!-- 5. شاشة التطبيق الرئيسية -->
-    <div id="main-app" class="page">
-        <div class="app-header">
-            <div class="home-tabs" id="home-tabs">
-                <span class="home-tab active" onclick="switchHomeTab('for-you', this)">لك</span>
-                <span style="opacity:0.3">|</span>
-                <span class="home-tab" onclick="switchHomeTab('following', this)">أتابعه</span>
-            </div>
-            <h4 id="header-title" style="display: none;">الرئيسية</h4>
-        </div>
-
-        <div class="content-area">
-            <!-- Feed Tab -->
-            <div id="view-home" class="tab-view">
-                <div class="video-card">
-                    <video id="feed-video" loop playsinline src="https://assets.mixkit.co/videos/preview/mixkit-starry-night-sky-over-a-plain-40781-large.mp4"></video>
-                    
-                    <div class="side-actions">
-                        <div class="action-icon" id="like-btn" onclick="toggleLike(this)">
-                            <i class="fa-solid fa-heart"></i>
-                            <span id="like-count">1.2K</span>
-                        </div>
-                        <div class="action-icon" onclick="openComments()">
-                            <i class="fa-solid fa-comment-dots"></i>
-                            <span>84</span>
-                        </div>
-                        <div class="action-icon" id="bookmark-btn" onclick="toggleBookmark(this)">
-                            <i class="fa-solid fa-bookmark"></i>
-                            <span>حفظ</span>
-                        </div>
-                    </div>
-
-                    <div class="video-info">
-                        <h4>@_v3223v_ <button class="follow-btn" onclick="toggleFollow(this)">متابعة</button></h4>
-                        <p style="font-size: 0.9rem; margin-top: 5px;">مقطع توثيقي لقِيَم وطنية ودينية. 🇸🇦✨</p>
+    <!-- 1. الشاشة الرئيسية -->
+    <div id="main-app" class="page active">
+        <div class="content-area" style="flex:1; position:relative;">
+            <div class="video-card" style="width:100%; height:calc(100vh - var(--nav-height)); background:#000; position:relative;">
+                <video id="feed-video" loop playsinline autoplay src="https://assets.mixkit.co/videos/preview/mixkit-starry-night-sky-over-a-plain-40781-large.mp4" style="width:100%; height:100%; object-fit:cover;"></video>
+                
+                <div class="side-actions">
+                    <div onclick="openComments()" style="text-align:center; cursor:pointer;">
+                        <i class="fa-solid fa-comment-dots" style="font-size:1.8rem;"></i>
+                        <div style="font-size:0.75rem;">التعليقات</div>
                     </div>
                 </div>
             </div>
-
-            <!-- Search Tab -->
-            <div id="view-search" class="tab-view" style="display: none; padding: 15px;">
-                <input type="text" placeholder="بحث..." class="input-edit" style="width: 100%;">
-            </div>
-
-            <!-- Upload / Camera Tab -->
-            <div id="view-upload" class="tab-view" style="display: none; height: 100%;">
-                <div class="camera-container">
-                    <video id="camera-preview" autoplay playsinline muted></video>
-                    <div class="camera-overlay">
-                        <div style="text-align: center; color: #FFF; font-weight: bold; background: rgba(0,0,0,0.4); padding: 5px; border-radius: 10px;">
-                            أقصى مدة للفيديو: 15 ثانية
-                        </div>
-
-                        <div style="display: flex; justify-content: space-around; align-items: center;">
-                            <!-- زر الاستوديو (تحت يسار) -->
-                            <div onclick="document.getElementById('gallery-video-input').click()" style="color: #FFF; font-size: 1.8rem; cursor: pointer;">
-                                <i class="fa-solid fa-images"></i>
-                                <input type="file" id="gallery-video-input" accept="video/*" style="display: none;" onchange="handleVideoUpload(event)">
-                            </div>
-
-                            <!-- زر التصوير المباشر -->
-                            <div id="record-btn" onclick="toggleRecording()" style="width: 65px; height: 65px; border-radius: 50%; border: 4px solid #FFF; background: #e74c3c; cursor: pointer;"></div>
-
-                            <div style="width: 30px;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Notifications Tab -->
-            <div id="view-notifications" class="tab-view" style="display: none; padding: 15px;">
-                <p style="text-align: center; opacity: 0.7;">لا توجد إشعارات جديدة</p>
-            </div>
-
-            <!-- Profile Tab -->
-            <div id="view-profile" class="tab-view" style="display: none; padding: 20px 15px; text-align: center;">
-                <div class="profile-avatar" id="app-avatar"><i class="fa-solid fa-user"></i></div>
-                <h3 id="app-name">فارس</h3>
-                <p id="app-username" style="opacity: 0.7; dir: ltr;">@_v3223v_</p>
-                <p id="app-bio" style="font-size: 0.9rem; margin: 10px 0; opacity: 0.9;">لا يوجد بايو حالياً</p>
-
-                <button class="btn-action" onclick="openEditProfile()" style="margin-top: 15px;">
-                    <i class="fa-solid fa-user-pen"></i> تعديل حسابي
-                </button>
-            </div>
         </div>
 
-        <!-- Bottom Nav -->
         <div class="bottom-nav">
-            <div class="nav-item active" onclick="switchNav('home', this)"><i class="fa-solid fa-house"></i><span>الرئيسية</span></div>
-            <div class="nav-item" onclick="switchNav('search', this)"><i class="fa-solid fa-magnifying-glass"></i><span>البحث</span></div>
-            <div class="nav-item upload-btn" onclick="switchNav('upload', this)"><i class="fa-solid fa-plus"></i></div>
-            <div class="nav-item" onclick="switchNav('notifications', this)"><i class="fa-solid fa-bell"></i><span>الإشعارات</span></div>
-            <div class="nav-item" onclick="switchNav('profile', this)"><i class="fa-solid fa-user"></i><span>حسابي</span></div>
+            <div class="nav-item active" onclick="switchNav('home')"><i class="fa-solid fa-house"></i><span>الرئيسية</span></div>
+            <div class="nav-item upload-btn" onclick="switchNav('upload')"><i class="fa-solid fa-plus"></i></div>
+            <div class="nav-item" onclick="switchNav('profile')"><i class="fa-solid fa-user"></i><span>حسابي</span></div>
         </div>
     </div>
 
-    <!-- Modal التعليقات -->
-    <div id="comments-modal" class="modal-overlay">
-        <div class="modal-box" style="text-align: right;">
-            <div style="display:flex; justify-space-between; align-items:center; margin-bottom: 10px;">
-                <h4>التعليقات</h4>
-                <i class="fa-solid fa-xmark" onclick="closeComments()" style="cursor:pointer; font-size: 1.2rem;"></i>
-            </div>
-            <div id="comments-list" style="max-height: 200px; overflow-y: auto; margin-bottom: 10px; font-size: 0.9rem;">
-                <p><b>@nawaf:</b> تطبيق بطل ماشاء الله! 👏</p>
-            </div>
-            <div style="display:flex; gap:5px;">
-                <input type="text" id="comment-input" class="input-edit" placeholder="أضف تعليقاً..." style="margin:0;">
-                <button class="btn-action" onclick="addComment()" style="width: auto; padding: 0 15px; margin:0;">نشر</button>
+    <!-- 2. شاشة التصوير والكاميرا -->
+    <div id="camera-screen" class="page">
+        <div class="camera-container">
+            <div id="timer-display" class="timer-badge">15</div>
+            <video id="camera-preview" autoplay playsinline muted></video>
+
+            <div style="position:absolute; bottom:30px; width:100%; display:flex; justify-content:space-around; align-items:center; z-index:10;">
+                <div onclick="document.getElementById('gallery-input').click()" style="color:#FFF; font-size:1.8rem; cursor:pointer;">
+                    <i class="fa-solid fa-images"></i>
+                    <input type="file" id="gallery-input" accept="video/*" style="display:none;" onchange="loadEditorWithVideo(event)">
+                </div>
+
+                <!-- زر التسجيل -->
+                <div id="record-circle" onclick="toggleRecording()" style="width:70px; height:70px; border-radius:50%; border:4px solid #FFF; background:#e74c3c; cursor:pointer; display:flex; justify-content:center; align-items:center;"></div>
+
+                <div onclick="closeCamera()" style="color:#FFF; font-size:1.8rem; cursor:pointer;">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Firebase SDK Modules -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, OAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, query, collection, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    <!-- 3. شاشة تعديل الفيديو بسيط بعد التصوير/الرفع -->
+    <div id="editor-screen" class="page" style="background:#000;">
+        <div style="position:relative; width:100%; height:75vh;">
+            <video id="editor-preview" loop playsinline autoplay style="width:100%; height:100%; object-fit:cover;"></video>
+            <div id="overlay-text-display" class="editor-text-overlay"></div>
+        </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAI23gvlRESb1Eivn5xjuq1y9U-pcixYsw",
-            authDomain: "fit-app-1c1a8.firebaseapp.com",
-            projectId: "fit-app-1c1a8",
-            storageBucket: "fit-app-1c1a8.firebasestorage.app",
-            messagingSenderId: "70249998607",
-            appId: "1:70249998607:web:129b8c7e919eb1152bb67a",
-            measurementId: "G-PD6NX9CH5B"
-        };
+        <!-- أشرطة وقائمة التعديل البسيطة -->
+        <div style="padding: 15px; color:#FFF; display:flex; flex-direction:column; gap:10px; background:var(--accent-color);">
+            <input type="text" id="video-text-input" placeholder="أضف نصاً على الفيديو..." oninput="updateEditorText()" style="padding:8px; border-radius:8px; border:none; text-align:right;">
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem;">
+                <span>صوت الفيديو:</span>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1" onchange="adjustVolume(this.value)">
+            </div>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+            <div style="display:flex; gap:10px; margin-top:5px;">
+                <button onclick="publishVideo()" class="btn-action" style="background:#27ae60; color:#FFF; border:none; margin:0;">نشر الفيديو 🚀</button>
+                <button onclick="discardEditor()" class="btn-action" style="background:#c0392b; color:#FFF; border:none; margin:0;">إلغاء</button>
+            </div>
+        </div>
+    </div>
 
-        let currentUser = null;
-        let selectedAvatarBase64 = "";
-        let mediaStream = null;
+    <!-- 4. نافذة التعليقات (نصف الشاشة) -->
+    <div id="comments-sheet" class="bottom-sheet-overlay" onclick="closeCommentsOnOutsideClick(event)">
+        <div class="bottom-sheet" onclick="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(0,0,0,0.1); padding-bottom:8px;">
+                <h4 style="margin:0;">التعليقات (نصف الشاشة)</h4>
+                <i class="fa-solid fa-xmark" onclick="closeComments()" style="cursor:pointer; font-size:1.2rem;"></i>
+            </div>
 
-        setTimeout(() => {
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    currentUser = user;
-                    checkUserSetup(user.uid);
-                } else {
-                    showPage('auth-screen');
-                }
-            });
-        }, 1500);
+            <div id="comments-container" style="flex:1; overflow-y:auto; padding:10px 0; font-size:0.9rem;">
+                <div style="margin-bottom:12px;">
+                    <b>@nawaf:</b> كفو كالعادة يافارس 🔥
+                    <div style="font-size:0.75rem; color:#777; cursor:pointer;" onclick="replyTo('nawaf')">رد</div>
+                </div>
+            </div>
 
-        window.loginWithGoogle = function() {
-            signInWithPopup(auth, new GoogleAuthProvider()).catch(err => alert("خطأ: " + err.message));
-        };
+            <div id="reply-indicator" style="font-size:0.75rem; color:var(--accent-color); display:none; margin-bottom:4px;">
+                ترد حالياً على: <span id="reply-username"></span>
+            </div>
 
-        window.loginWithApple = function() {
-            signInWithPopup(auth, new OAuthProvider('apple.com')).catch(err => alert("خطأ: " + err.message));
-        };
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="comment-input" placeholder="أضف تعليقاً..." style="flex:1; padding:10px; border-radius:10px; border:1px solid #ccc; text-align:right;">
+                <button onclick="sendComment()" style="background:var(--accent-color); color:#FFF; border:none; padding:0 15px; border-radius:10px; font-weight:bold;">نشر</button>
+            </div>
+        </div>
+    </div>
 
-        async function checkUserSetup(uid) {
-            const userDoc = await getDoc(doc(db, "users", uid));
-            if (userDoc.exists() && userDoc.data().username) {
-                const data = userDoc.data();
-                document.getElementById('app-name').innerText = data.name;
-                document.getElementById('app-username').innerText = "@" + data.username;
-                document.getElementById('app-bio').innerText = data.bio || "لا يوجد بايو حالياً";
-                if(data.avatar) {
-                    document.getElementById('app-avatar').innerHTML = `<img src="${data.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
-                }
-                showPage('main-app');
-                document.getElementById('feed-video').play();
+    <script>
+        let isRecording = false;
+        let recordTimer = null;
+        let timeLeft = 15;
+        let cameraStream = null;
+        let replyingUser = "";
+
+        // 1. إنشاء وتحميل ملف التعريف للأيفون (Mobileconfig)
+        function downloadMobileConfig() {
+            const configContent = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>URL</key>
+            <string>${window.location.href}</string>
+            <key>Label</key>
+            <string>قِيَم</string>
+            <key>IsRemovable</key>
+            <true/>
+            <key>PayloadType</key>
+            <string>com.apple.webClip.managed</string>
+            <key>PayloadUUID</key>
+            <string>a8e29d38-2831-4a11-b8f9-90b1c24301a2</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+            <key>PayloadIdentifier</key>
+            <string>com.qiyam.webclip</string>
+        </dict>
+    </array>
+    <key>PayloadDisplayName</key>
+    <string>تطبيق قِيَم</string>
+    <key>PayloadIdentifier</key>
+    <string>com.qiyam.profile</string>
+    <key>PayloadRemovalDisallowed</key>
+    <false/>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>e9a18b76-4d2c-4710-91a2-871d34c11b01</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+</dict>
+</plist>`;
+
+            const blob = new Blob([configContent], { type: 'application/x-apple-aspen-config' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'QiyamApp.mobileconfig';
+            link.click();
+        }
+
+        // 2. التحكم بالتنقل
+        function switchNav(pageName) {
+            if (pageName === 'upload') {
+                openCamera();
             } else {
-                document.getElementById('pledge-modal').style.display = 'flex';
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById('main-app').classList.add('active');
             }
         }
 
-        window.submitPledge = function() {
-            if (!document.getElementById('check-age').checked || !document.getElementById('check-music').checked) {
-                alert("يلزم الإقرار بالتعهدين للمتابعة.");
-                return;
-            }
-            document.getElementById('pledge-modal').style.display = 'none';
-            showPage('setup-profile-screen');
-        };
-
-        window.openEditProfile = function() {
-            document.getElementById('setup-title').innerText = "تعديل حسابي";
-            showPage('setup-profile-screen');
-        };
-
-        window.saveNewProfile = async function() {
-            const usernameInput = document.getElementById('setup-username').value.trim();
-            const nameInput = document.getElementById('setup-name').value.trim();
-            const bioInput = document.getElementById('setup-bio').value.trim();
-
-            const usernameErr = document.getElementById('username-err');
-            const nameErr = document.getElementById('name-err');
-
-            usernameErr.style.display = 'none';
-            nameErr.style.display = 'none';
-
-            const usernameRegex = /^[a-zA-Z0-9._-]{2,16}$/;
-            if (!usernameRegex.test(usernameInput)) {
-                usernameErr.innerText = "اليوزر يجب أن يكون بالإنجليزية (2-16 حرف).";
-                usernameErr.style.display = 'block';
-                return;
-            }
-
-            if (nameInput.length < 1 || nameInput.length > 16) {
-                nameErr.innerText = "الاسم يجب أن لا يتعدى 16 حرفاً.";
-                nameErr.style.display = 'block';
-                return;
-            }
-
-            const now = new Date();
-            await setDoc(doc(db, "users", currentUser.uid), {
-                username: usernameInput,
-                name: nameInput,
-                bio: bioInput,
-                avatar: selectedAvatarBase64,
-                updatedAt: now
-            }, { merge: true });
-
-            checkUserSetup(currentUser.uid);
-        };
-
-        window.loadSetupAvatar = function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    selectedAvatarBase64 = e.target.result;
-                    document.getElementById('setup-avatar-display').innerHTML = `<img src="${selectedAvatarBase64}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
-                };
-                reader.readAsDataURL(file);
-            }
-        };
-
-        /* تشغيل الكاميرا المباشرة */
-        async function startCamera() {
+        // 3. الكاميرا والعداد التنازلي (15 ثانية)
+        async function openCamera() {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('camera-screen').classList.add('active');
             try {
-                mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
-                document.getElementById('camera-preview').srcObject = mediaStream;
-            } catch (e) {
-                console.log("الكاميرا غير متاحة مباشر:", e);
-            }
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true });
+                document.getElementById('camera-preview').srcObject = cameraStream;
+            } catch(e) { console.log("الكاميرا:", e); }
         }
 
-        function stopCamera() {
-            if(mediaStream) {
-                mediaStream.getTracks().forEach(track => track.stop());
-            }
+        function closeCamera() {
+            if(cameraStream) cameraStream.getTracks().forEach(t => t.stop());
+            switchNav('home');
         }
 
-        /* فحص مدة الفيديو (15 ثانية كحد أقصى) */
-        window.handleVideoUpload = function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const tempVideo = document.createElement('video');
-                tempVideo.preload = 'metadata';
-                tempVideo.src = URL.createObjectURL(file);
-                tempVideo.onloadedmetadata = function() {
-                    URL.revokeObjectURL(tempVideo.src);
-                    if (tempVideo.duration > 15.5) {
-                        alert("عذراً، أقصى مدة للفيديو المسموح بها هي 15 ثانية فقط!");
-                    } else {
-                        alert("تم إرفاق الفيديو بنجاح (ضمن الحد المسموح)!");
+        function toggleRecording() {
+            const timerBadge = document.getElementById('timer-display');
+            const recordBtn = document.getElementById('record-circle');
+
+            if(!isRecording) {
+                isRecording = true;
+                timeLeft = 15;
+                timerBadge.innerText = timeLeft;
+                timerBadge.style.display = 'block';
+                recordBtn.style.background = '#000';
+
+                recordTimer = setInterval(() => {
+                    timeLeft--;
+                    timerBadge.innerText = timeLeft;
+                    if(timeLeft <= 0) {
+                        stopRecordingAndGoToEditor();
                     }
-                }
-            }
-        };
-
-        /* الأزرار والتفاعل */
-        window.toggleLike = function(el) {
-            el.classList.toggle('active');
-        };
-
-        window.toggleBookmark = function(el) {
-            el.classList.toggle('active');
-        };
-
-        window.toggleFollow = function(btn) {
-            if(btn.innerText === "متابعة") {
-                btn.innerText = "تمت المتابعة";
-                btn.style.background = "#555";
+                }, 1000);
             } else {
-                btn.innerText = "متابعة";
-                btn.style.background = "var(--accent-color)";
+                stopRecordingAndGoToEditor();
             }
-        };
+        }
 
-        window.openComments = function() { document.getElementById('comments-modal').style.display = 'flex'; };
-        window.closeComments = function() { document.getElementById('comments-modal').style.display = 'none'; };
+        function stopRecordingAndGoToEditor() {
+            clearInterval(recordTimer);
+            isRecording = false;
+            document.getElementById('timer-display').style.display = 'none';
+            document.getElementById('record-circle').style.background = '#e74c3c';
+            
+            if(cameraStream) cameraStream.getTracks().forEach(t => t.stop());
 
-        window.addComment = function() {
+            // توجيه لشاشة التعديل
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('editor-screen').classList.add('active');
+            document.getElementById('editor-preview').src = "https://assets.mixkit.co/videos/preview/mixkit-starry-night-sky-over-a-plain-40781-large.mp4";
+        }
+
+        function loadEditorWithVideo(event) {
+            const file = event.target.files[0];
+            if(file) {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById('editor-screen').classList.add('active');
+                document.getElementById('editor-preview').src = URL.createObjectURL(file);
+            }
+        }
+
+        // 4. أدوات تعديل الفيديو
+        function updateEditorText() {
+            document.getElementById('overlay-text-display').innerText = document.getElementById('video-text-input').value;
+        }
+
+        function adjustVolume(val) {
+            document.getElementById('editor-preview').volume = val;
+        }
+
+        function publishVideo() {
+            alert("تم نشر الفيديو بنجاح على منصة قِيَم! 🎉");
+            discardEditor();
+        }
+
+        function discardEditor() {
+            document.getElementById('video-text-input').value = "";
+            document.getElementById('overlay-text-display').innerText = "";
+            switchNav('home');
+        }
+
+        // 5. التعليقات ونصف الشاشة
+        function openComments() {
+            document.getElementById('comments-sheet').style.display = 'flex';
+        }
+
+        function closeComments() {
+            document.getElementById('comments-sheet').style.display = 'none';
+        }
+
+        function closeCommentsOnOutsideClick(event) {
+            // الخروج عند الضغط على المكان الفاضي بالشاشة فوق النافذة
+            closeComments();
+        }
+
+        function replyTo(username) {
+            replyingUser = username;
+            document.getElementById('reply-username').innerText = "@" + username;
+            document.getElementById('reply-indicator').style.display = 'block';
+            document.getElementById('comment-input').focus();
+        }
+
+        function sendComment() {
             const input = document.getElementById('comment-input');
             if(input.value.trim()) {
-                const list = document.getElementById('comments-list');
-                list.innerHTML += `<p><b> أنت:</b> ${input.value.trim()}</p>`;
+                const container = document.getElementById('comments-container');
+                let prefix = replyingUser ? `<span style="color:var(--accent-color);">رد لـ @${replyingUser}:</span> ` : '';
+                container.innerHTML += `<div style="margin-bottom:8px;"><b>أنت:</b> ${prefix}${input.value.trim()}</div>`;
                 input.value = "";
+                replyingUser = "";
+                document.getElementById('reply-indicator').style.display = 'none';
             }
-        };
-
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
         }
-
-        window.switchNav = function(tabName, element) {
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            element.classList.add('active');
-            document.querySelectorAll('.tab-view').forEach(view => view.style.display = 'none');
-            
-            const headerTitle = document.getElementById('header-title');
-            const homeTabs = document.getElementById('home-tabs');
-
-            if (tabName === 'upload') {
-                startCamera();
-            } else {
-                stopCamera();
-            }
-
-            if (tabName === 'home') {
-                document.getElementById('view-home').style.display = 'block';
-                homeTabs.style.display = 'flex';
-                headerTitle.style.display = 'none';
-            } else {
-                homeTabs.style.display = 'none';
-                headerTitle.style.display = 'block';
-                document.getElementById('view-' + tabName).style.display = 'block';
-                headerTitle.innerText = tabName === 'search' ? 'البحث' : tabName === 'upload' ? 'إنشاء' : tabName === 'notifications' ? 'الإشعارات' : 'حسابي';
-            }
-        };
-
-        window.switchHomeTab = function(tabType, element) {
-            document.querySelectorAll('.home-tab').forEach(tab => tab.classList.remove('active'));
-            element.classList.add('active');
-        };
     </script>
 </body>
 </html>
