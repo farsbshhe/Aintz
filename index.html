@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>تطبيق قِيَم</title>
     
-    <!-- PWA Settings -->
+    <!-- PWA iOS Settings -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="قِيَم">
@@ -26,7 +26,7 @@
         * {
             box-sizing: border-box;
             margin: 0; padding: 0;
-            font-family: 'Tajawal', sans-serif;
+            font-family: 'Tajawal', -apple-system, sans-serif;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
@@ -38,27 +38,74 @@
             color: var(--text-color);
         }
 
+        /* Banner install */
+        .install-banner {
+            background: var(--accent-color);
+            color: #FFF;
+            padding: 8px 15px;
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            position: relative;
+        }
+
+        .install-btn {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: none;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
         .page {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column;
             opacity: 0; pointer-events: none;
-            transition: all 0.25s ease;
-            background-color: var(--bg-color); z-index: 1;
+            transition: opacity 0.2s ease-in-out;
+            background-color: var(--bg-color);
+            z-index: 1;
         }
 
         .page.active { opacity: 1; pointer-events: auto; z-index: 2; }
 
-        .btn-action {
-            background-color: var(--card-bg); color: var(--text-color);
-            border: 1px solid rgba(54, 34, 19, 0.15); padding: 12px 20px;
-            border-radius: 25px; font-size: 1rem; font-weight: 700;
-            cursor: pointer; width: 100%; margin: 8px 0;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
+        .app-header {
+            height: 50px; display: flex; align-items: center; justify-content: center;
+            border-bottom: 1px solid rgba(54, 34, 19, 0.1); background: var(--bg-color);
+            font-weight: bold; font-size: 1.1rem;
         }
 
-        /* Half Bottom Sheet (التعليقات تأخذ نصف الشاشة) */
+        .content-area {
+            flex: 1; overflow-y: auto;
+            padding-bottom: var(--nav-height);
+            position: relative;
+        }
+
+        /* Video Card Feed */
+        .video-card {
+            width: 100%; height: calc(100vh - var(--nav-height) - 50px);
+            background: #000; position: relative;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .video-card video { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Side Action Buttons */
+        .side-actions {
+            position: absolute; left: 15px; bottom: 40px;
+            display: flex; flex-direction: column; gap: 20px; align-items: center;
+            color: #FFF; text-shadow: 0 2px 5px rgba(0,0,0,0.6); z-index: 5;
+        }
+
+        .action-icon { display: flex; flex-direction: column; align-items: center; font-size: 1.6rem; cursor: pointer; }
+        .action-icon span { font-size: 0.75rem; margin-top: 4px; font-weight: bold; }
+
+        /* Bottom Sheet (Comments) */
         .bottom-sheet-overlay {
-            position: fixed; top:0; left:0; width:100%; height:100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); z-index: 200; display: none;
             align-items: flex-end;
         }
@@ -67,15 +114,10 @@
             background: var(--bg-color); width: 100%; height: 50vh;
             border-top-left-radius: 20px; border-top-right-radius: 20px;
             padding: 15px; display: flex; flex-direction: column;
-            animation: slideUp 0.25s ease-out;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.2);
         }
 
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
-        /* Camera & Video Editor */
+        /* Camera Screen */
         .camera-container {
             width: 100%; height: 100%; background: #000; position: relative;
             display: flex; flex-direction: column; justify-content: space-between;
@@ -96,120 +138,181 @@
             pointer-events: none; text-align: center;
         }
 
-        /* TikTok Style Side Icons */
-        .side-actions {
-            position: absolute; left: 15px; bottom: 80px;
-            display: flex; flex-direction: column; gap: 20px; color: #FFF; z-index: 5;
-        }
-
+        /* Bottom Nav */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height);
             background-color: var(--bg-color); border-top: 1px solid rgba(54, 34, 19, 0.12);
-            display: flex; justify-content: space-around; align-items: center; z-index: 10;
+            display: flex; justify-content: space-around; align-items: center; z-index: 100;
         }
 
-        .nav-item { display: flex; flex-direction: column; align-items: center; opacity: 0.5; font-size: 0.75rem; font-weight: 700; gap: 4px; cursor: pointer; width: 20%; }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            opacity: 0.5; font-size: 0.75rem; font-weight: 700; gap: 3px; cursor: pointer; width: 20%;
+        }
+
         .nav-item.active { opacity: 1; }
+        .nav-item i { font-size: 1.3rem; }
         .nav-item.upload-btn i { background-color: var(--text-color); color: var(--bg-color); padding: 8px 14px; border-radius: 12px; }
+
+        .btn-action {
+            background-color: var(--card-bg); color: var(--text-color);
+            border: 1px solid rgba(54, 34, 19, 0.15); padding: 12px;
+            border-radius: 20px; font-size: 0.95rem; font-weight: 700;
+            cursor: pointer; width: 100%; margin-top: 10px; text-align: center;
+        }
+
+        .input-edit {
+            background: #FFF; border: 1px solid var(--accent-color); border-radius: 10px;
+            padding: 10px; color: var(--text-color); font-size: 0.95rem; text-align: right; width: 100%;
+        }
     </style>
 </head>
 <body>
 
-    <!-- زر تحميل ملف التعريف للأيفون (PWA Profile) -->
-    <div id="pwa-install-banner" style="background: var(--accent-color); color: #FFF; padding: 10px; text-align: center; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
-        <span>📲 حمّل تطبيق قِيَم على شاشة الأيفون</span>
-        <button onclick="downloadMobileConfig()" style="background: var(--card-bg); color: var(--text-color); border: none; padding: 5px 12px; border-radius: 12px; font-weight: bold; cursor: pointer;">تحميل الملف</button>
+    <!-- banner تثبيت الأيفون -->
+    <div class="install-banner">
+        <span>📲 تثبيت التطبيق بملف التعريف على الأيفون</span>
+        <button class="install-btn" onclick="downloadMobileConfig()">تحميل</button>
     </div>
 
     <!-- 1. الشاشة الرئيسية -->
-    <div id="main-app" class="page active">
-        <div class="content-area" style="flex:1; position:relative;">
-            <div class="video-card" style="width:100%; height:calc(100vh - var(--nav-height)); background:#000; position:relative;">
-                <video id="feed-video" loop playsinline autoplay src="https://assets.mixkit.co/videos/preview/mixkit-starry-night-sky-over-a-plain-40781-large.mp4" style="width:100%; height:100%; object-fit:cover;"></video>
+    <div id="page-home" class="page active">
+        <div class="app-header">قِيَم</div>
+        <div class="content-area">
+            <div class="video-card">
+                <video id="feed-video" loop playsinline autoplay src="https://assets.mixkit.co/videos/preview/mixkit-starry-night-sky-over-a-plain-40781-large.mp4"></video>
                 
                 <div class="side-actions">
-                    <div onclick="openComments()" style="text-align:center; cursor:pointer;">
-                        <i class="fa-solid fa-comment-dots" style="font-size:1.8rem;"></i>
-                        <div style="font-size:0.75rem;">التعليقات</div>
+                    <div class="action-icon" onclick="toggleLike(this)">
+                        <i class="fa-solid fa-heart"></i>
+                        <span>إعجاب</span>
                     </div>
+                    <div class="action-icon" onclick="openComments()">
+                        <i class="fa-solid fa-comment-dots"></i>
+                        <span>التعليقات</span>
+                    </div>
+                    <div class="action-icon" onclick="toggleBookmark(this)">
+                        <i class="fa-solid fa-bookmark"></i>
+                        <span>حفظ</span>
+                    </div>
+                </div>
+
+                <div style="position: absolute; right: 15px; bottom: 20px; color: #FFF; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">
+                    <h4>@_v3223v_</h4>
+                    <p style="font-size: 0.85rem; margin-top: 4px;">مرحباً بكم في تطبيق قِيَم 🇸🇦</p>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="bottom-nav">
-            <div class="nav-item active" onclick="switchNav('home')"><i class="fa-solid fa-house"></i><span>الرئيسية</span></div>
-            <div class="nav-item upload-btn" onclick="switchNav('upload')"><i class="fa-solid fa-plus"></i></div>
-            <div class="nav-item" onclick="switchNav('profile')"><i class="fa-solid fa-user"></i><span>حسابي</span></div>
+    <!-- 2. شاشة البحث -->
+    <div id="page-search" class="page">
+        <div class="app-header">البحث</div>
+        <div class="content-area" style="padding: 15px;">
+            <input type="text" class="input-edit" placeholder="ابحث عن حسابات أو مقاطع...">
         </div>
     </div>
 
-    <!-- 2. شاشة التصوير والكاميرا -->
-    <div id="camera-screen" class="page">
+    <!-- 3. شاشة الإشعارات -->
+    <div id="page-notifications" class="page">
+        <div class="app-header">الإشعارات</div>
+        <div class="content-area" style="padding: 20px; text-align: center; opacity: 0.7;">
+            <i class="fa-solid fa-bell" style="font-size: 3rem; margin-bottom: 10px;"></i>
+            <p>لا توجد إشعارات حالياً</p>
+        </div>
+    </div>
+
+    <!-- 4. شاشة حسابي -->
+    <div id="page-profile" class="page">
+        <div class="app-header">حسابي</div>
+        <div class="content-area" style="padding: 20px; text-align: center;">
+            <div style="width: 90px; height: 90px; border-radius: 50%; background: var(--accent-light); margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; border: 3px solid var(--text-color);">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <h3>فارس الشمري</h3>
+            <p style="opacity: 0.7; font-size: 0.9rem;">@_v3223v_</p>
+            <p style="margin-top: 10px; font-size: 0.95rem;">مطور منصة قِيَم ✨</p>
+
+            <button class="btn-action" onclick="alert('شاشة التعديل متاحة من الإعدادات')">
+                <i class="fa-solid fa-user-pen"></i> تعديل حسابي
+            </button>
+        </div>
+    </div>
+
+    <!-- 5. شاشة التصوير والكاميرا -->
+    <div id="page-upload" class="page" style="background: #000;">
         <div class="camera-container">
             <div id="timer-display" class="timer-badge">15</div>
             <video id="camera-preview" autoplay playsinline muted></video>
 
-            <div style="position:absolute; bottom:30px; width:100%; display:flex; justify-content:space-around; align-items:center; z-index:10;">
-                <div onclick="document.getElementById('gallery-input').click()" style="color:#FFF; font-size:1.8rem; cursor:pointer;">
+            <div style="position: absolute; bottom: 30px; width: 100%; display: flex; justify-content: space-around; align-items: center; z-index: 10;">
+                <div onclick="document.getElementById('gallery-input').click()" style="color: #FFF; font-size: 1.8rem; cursor: pointer;">
                     <i class="fa-solid fa-images"></i>
-                    <input type="file" id="gallery-input" accept="video/*" style="display:none;" onchange="loadEditorWithVideo(event)">
+                    <input type="file" id="gallery-input" accept="video/*" style="display: none;" onchange="loadEditorWithVideo(event)">
                 </div>
 
-                <!-- زر التسجيل -->
-                <div id="record-circle" onclick="toggleRecording()" style="width:70px; height:70px; border-radius:50%; border:4px solid #FFF; background:#e74c3c; cursor:pointer; display:flex; justify-content:center; align-items:center;"></div>
+                <div id="record-circle" onclick="toggleRecording()" style="width: 70px; height: 70px; border-radius: 50%; border: 4px solid #FFF; background: #e74c3c; cursor: pointer;"></div>
 
-                <div onclick="closeCamera()" style="color:#FFF; font-size:1.8rem; cursor:pointer;">
+                <div onclick="switchPage('home')" style="color: #FFF; font-size: 1.8rem; cursor: pointer;">
                     <i class="fa-solid fa-xmark"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 3. شاشة تعديل الفيديو بسيط بعد التصوير/الرفع -->
-    <div id="editor-screen" class="page" style="background:#000;">
-        <div style="position:relative; width:100%; height:75vh;">
+    <!-- 6. شاشة التعديل البسيطة للفيديو -->
+    <div id="page-editor" class="page" style="background: #000;">
+        <div style="position: relative; width: 100%; height: 70vh;">
             <video id="editor-preview" loop playsinline autoplay style="width:100%; height:100%; object-fit:cover;"></video>
             <div id="overlay-text-display" class="editor-text-overlay"></div>
         </div>
 
-        <!-- أشرطة وقائمة التعديل البسيطة -->
-        <div style="padding: 15px; color:#FFF; display:flex; flex-direction:column; gap:10px; background:var(--accent-color);">
-            <input type="text" id="video-text-input" placeholder="أضف نصاً على الفيديو..." oninput="updateEditorText()" style="padding:8px; border-radius:8px; border:none; text-align:right;">
+        <div style="padding: 15px; color: #FFF; background: var(--accent-color); display: flex; flex-direction: column; gap: 10px;">
+            <input type="text" id="video-text-input" class="input-edit" placeholder="أضف نصاً على الفيديو..." oninput="updateEditorText()">
             
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
                 <span>صوت الفيديو:</span>
-                <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1" onchange="adjustVolume(this.value)">
+                <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="1" onchange="document.getElementById('editor-preview').volume = this.value">
             </div>
 
-            <div style="display:flex; gap:10px; margin-top:5px;">
-                <button onclick="publishVideo()" class="btn-action" style="background:#27ae60; color:#FFF; border:none; margin:0;">نشر الفيديو 🚀</button>
-                <button onclick="discardEditor()" class="btn-action" style="background:#c0392b; color:#FFF; border:none; margin:0;">إلغاء</button>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="publishVideo()" class="btn-action" style="background: #27ae60; color: #FFF; border: none;">نشر الفيديو 🚀</button>
+                <button onclick="switchPage('home')" class="btn-action" style="background: #c0392b; color: #FFF; border: none;">إلغاء</button>
             </div>
         </div>
     </div>
 
-    <!-- 4. نافذة التعليقات (نصف الشاشة) -->
-    <div id="comments-sheet" class="bottom-sheet-overlay" onclick="closeCommentsOnOutsideClick(event)">
+    <!-- شريط التنقل السفلي الثابت -->
+    <div class="bottom-nav">
+        <div class="nav-item active" id="nav-home" onclick="switchPage('home')"><i class="fa-solid fa-house"></i><span>الرئيسية</span></div>
+        <div class="nav-item" id="nav-search" onclick="switchPage('search')"><i class="fa-solid fa-magnifying-glass"></i><span>البحث</span></div>
+        <div class="nav-item upload-btn" id="nav-upload" onclick="switchPage('upload')"><i class="fa-solid fa-plus"></i></div>
+        <div class="nav-item" id="nav-notifications" onclick="switchPage('notifications')"><i class="fa-solid fa-bell"></i><span>الإشعارات</span></div>
+        <div class="nav-item" id="nav-profile" onclick="switchPage('profile')"><i class="fa-solid fa-user"></i><span>حسابي</span></div>
+    </div>
+
+    <!-- نافذة التعليقات (نصف الشاشة) -->
+    <div id="comments-sheet" class="bottom-sheet-overlay" onclick="closeComments()">
         <div class="bottom-sheet" onclick="event.stopPropagation()">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(0,0,0,0.1); padding-bottom:8px;">
-                <h4 style="margin:0;">التعليقات (نصف الشاشة)</h4>
-                <i class="fa-solid fa-xmark" onclick="closeComments()" style="cursor:pointer; font-size:1.2rem;"></i>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 8px;">
+                <h4 style="margin: 0;">التعليقات</h4>
+                <i class="fa-solid fa-xmark" onclick="closeComments()" style="cursor: pointer; font-size: 1.2rem;"></i>
             </div>
 
-            <div id="comments-container" style="flex:1; overflow-y:auto; padding:10px 0; font-size:0.9rem;">
-                <div style="margin-bottom:12px;">
-                    <b>@nawaf:</b> كفو كالعادة يافارس 🔥
-                    <div style="font-size:0.75rem; color:#777; cursor:pointer;" onclick="replyTo('nawaf')">رد</div>
+            <div id="comments-list" style="flex: 1; overflow-y: auto; padding: 10px 0; font-size: 0.9rem;">
+                <div style="margin-bottom: 10px;">
+                    <b>@nawaf:</b> تطبيق بطل ماشاء الله! 🔥
+                    <div style="font-size: 0.75rem; color: #777; cursor: pointer;" onclick="replyTo('nawaf')">رد</div>
                 </div>
             </div>
 
-            <div id="reply-indicator" style="font-size:0.75rem; color:var(--accent-color); display:none; margin-bottom:4px;">
+            <div id="reply-indicator" style="font-size: 0.75rem; color: var(--accent-color); display: none; margin-bottom: 4px;">
                 ترد حالياً على: <span id="reply-username"></span>
             </div>
 
-            <div style="display:flex; gap:8px;">
-                <input type="text" id="comment-input" placeholder="أضف تعليقاً..." style="flex:1; padding:10px; border-radius:10px; border:1px solid #ccc; text-align:right;">
-                <button onclick="sendComment()" style="background:var(--accent-color); color:#FFF; border:none; padding:0 15px; border-radius:10px; font-weight:bold;">نشر</button>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="comment-input" class="input-edit" placeholder="أضف تعليقاً..." style="margin: 0;">
+                <button onclick="sendComment()" style="background: var(--accent-color); color: #FFF; border: none; padding: 0 15px; border-radius: 10px; font-weight: bold;">نشر</button>
             </div>
         </div>
     </div>
@@ -221,7 +324,126 @@
         let cameraStream = null;
         let replyingUser = "";
 
-        // 1. إنشاء وتحميل ملف التعريف للأيفون (Mobileconfig)
+        // 1. التنقل السليم بين الشاشات والأزرار السفليّة
+        function switchPage(pageName) {
+            // إغلاق أي نافذة أو كاميرا سابقة
+            stopCamera();
+            closeComments();
+
+            // إخفاء جميع الشاشات
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+            // تفعيل الشاشة المطلوبة
+            const targetPage = document.getElementById('page-' + pageName);
+            if (targetPage) targetPage.classList.add('active');
+
+            const targetNav = document.getElementById('nav-' + pageName);
+            if (targetNav) targetNav.classList.add('active');
+
+            // تشغيل الكاميرا إذا كانت شاشة رفع
+            if (pageName === 'upload') {
+                startCamera();
+            }
+        }
+
+        // 2. الكاميرا والعد التنازلي 15 ثانية
+        async function startCamera() {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true });
+                document.getElementById('camera-preview').srcObject = cameraStream;
+            } catch(e) { console.log("الكاميرا:", e); }
+        }
+
+        function stopCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(t => t.stop());
+                cameraStream = null;
+            }
+        }
+
+        function toggleRecording() {
+            const timerBadge = document.getElementById('timer-display');
+            const recordBtn = document.getElementById('record-circle');
+
+            if (!isRecording) {
+                isRecording = true;
+                timeLeft = 15;
+                timerBadge.innerText = timeLeft;
+                timerBadge.style.display = 'block';
+                recordBtn.style.background = '#000';
+
+                recordTimer = setInterval(() => {
+                    timeLeft--;
+                    timerBadge.innerText = timeLeft;
+                    if (timeLeft <= 0) {
+                        finishRecording();
+                    }
+                }, 1000);
+            } else {
+                finishRecording();
+            }
+        }
+
+        function finishRecording() {
+            clearInterval(recordTimer);
+            isRecording = false;
+            document.getElementById('timer-display').style.display = 'none';
+            document.getElementById('record-circle').style.background = '#e74c3c';
+            stopCamera();
+
+            switchPage('editor');
+            document.getElementById('editor-preview').src = "https://assets.mixkit.co/videos/preview/mixkit-starry-night-sky-over-a-plain-40781-large.mp4";
+        }
+
+        function loadEditorWithVideo(event) {
+            const file = event.target.files[0];
+            if (file) {
+                stopCamera();
+                switchPage('editor');
+                document.getElementById('editor-preview').src = URL.createObjectURL(file);
+            }
+        }
+
+        // 3. التعديلات والتفاعل
+        function updateEditorText() {
+            document.getElementById('overlay-text-display').innerText = document.getElementById('video-text-input').value;
+        }
+
+        function publishVideo() {
+            alert("تم نشر الفيديو بنجاح على منصة قِيَم! 🚀");
+            document.getElementById('video-text-input').value = "";
+            document.getElementById('overlay-text-display').innerText = "";
+            switchPage('home');
+        }
+
+        function toggleLike(el) { el.style.color = el.style.color === 'red' ? '#FFF' : 'red'; }
+        function toggleBookmark(el) { el.style.color = el.style.color === 'gold' ? '#FFF' : 'gold'; }
+
+        // 4. التعليقات ونصف الشاشة
+        function openComments() { document.getElementById('comments-sheet').style.display = 'flex'; }
+        function closeComments() { document.getElementById('comments-sheet').style.display = 'none'; }
+
+        function replyTo(user) {
+            replyingUser = user;
+            document.getElementById('reply-username').innerText = "@" + user;
+            document.getElementById('reply-indicator').style.display = 'block';
+            document.getElementById('comment-input').focus();
+        }
+
+        function sendComment() {
+            const input = document.getElementById('comment-input');
+            if (input.value.trim()) {
+                const list = document.getElementById('comments-list');
+                let prefix = replyingUser ? `<span style="color:var(--accent-color);">رد لـ @${replyingUser}:</span> ` : '';
+                list.innerHTML += `<div style="margin-bottom:8px;"><b>أنت:</b> ${prefix}${input.value.trim()}</div>`;
+                input.value = "";
+                replyingUser = "";
+                document.getElementById('reply-indicator').style.display = 'none';
+            }
+        }
+
+        // 5. تحميل ملف التعريف للأيفون
         function downloadMobileConfig() {
             const configContent = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -250,8 +472,6 @@
     <string>تطبيق قِيَم</string>
     <key>PayloadIdentifier</key>
     <string>com.qiyam.profile</string>
-    <key>PayloadRemovalDisallowed</key>
-    <false/>
     <key>PayloadType</key>
     <string>Configuration</string>
     <key>PayloadUUID</key>
@@ -266,130 +486,6 @@
             link.href = URL.createObjectURL(blob);
             link.download = 'QiyamApp.mobileconfig';
             link.click();
-        }
-
-        // 2. التحكم بالتنقل
-        function switchNav(pageName) {
-            if (pageName === 'upload') {
-                openCamera();
-            } else {
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                document.getElementById('main-app').classList.add('active');
-            }
-        }
-
-        // 3. الكاميرا والعداد التنازلي (15 ثانية)
-        async function openCamera() {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('camera-screen').classList.add('active');
-            try {
-                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true });
-                document.getElementById('camera-preview').srcObject = cameraStream;
-            } catch(e) { console.log("الكاميرا:", e); }
-        }
-
-        function closeCamera() {
-            if(cameraStream) cameraStream.getTracks().forEach(t => t.stop());
-            switchNav('home');
-        }
-
-        function toggleRecording() {
-            const timerBadge = document.getElementById('timer-display');
-            const recordBtn = document.getElementById('record-circle');
-
-            if(!isRecording) {
-                isRecording = true;
-                timeLeft = 15;
-                timerBadge.innerText = timeLeft;
-                timerBadge.style.display = 'block';
-                recordBtn.style.background = '#000';
-
-                recordTimer = setInterval(() => {
-                    timeLeft--;
-                    timerBadge.innerText = timeLeft;
-                    if(timeLeft <= 0) {
-                        stopRecordingAndGoToEditor();
-                    }
-                }, 1000);
-            } else {
-                stopRecordingAndGoToEditor();
-            }
-        }
-
-        function stopRecordingAndGoToEditor() {
-            clearInterval(recordTimer);
-            isRecording = false;
-            document.getElementById('timer-display').style.display = 'none';
-            document.getElementById('record-circle').style.background = '#e74c3c';
-            
-            if(cameraStream) cameraStream.getTracks().forEach(t => t.stop());
-
-            // توجيه لشاشة التعديل
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('editor-screen').classList.add('active');
-            document.getElementById('editor-preview').src = "https://assets.mixkit.co/videos/preview/mixkit-starry-night-sky-over-a-plain-40781-large.mp4";
-        }
-
-        function loadEditorWithVideo(event) {
-            const file = event.target.files[0];
-            if(file) {
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                document.getElementById('editor-screen').classList.add('active');
-                document.getElementById('editor-preview').src = URL.createObjectURL(file);
-            }
-        }
-
-        // 4. أدوات تعديل الفيديو
-        function updateEditorText() {
-            document.getElementById('overlay-text-display').innerText = document.getElementById('video-text-input').value;
-        }
-
-        function adjustVolume(val) {
-            document.getElementById('editor-preview').volume = val;
-        }
-
-        function publishVideo() {
-            alert("تم نشر الفيديو بنجاح على منصة قِيَم! 🎉");
-            discardEditor();
-        }
-
-        function discardEditor() {
-            document.getElementById('video-text-input').value = "";
-            document.getElementById('overlay-text-display').innerText = "";
-            switchNav('home');
-        }
-
-        // 5. التعليقات ونصف الشاشة
-        function openComments() {
-            document.getElementById('comments-sheet').style.display = 'flex';
-        }
-
-        function closeComments() {
-            document.getElementById('comments-sheet').style.display = 'none';
-        }
-
-        function closeCommentsOnOutsideClick(event) {
-            // الخروج عند الضغط على المكان الفاضي بالشاشة فوق النافذة
-            closeComments();
-        }
-
-        function replyTo(username) {
-            replyingUser = username;
-            document.getElementById('reply-username').innerText = "@" + username;
-            document.getElementById('reply-indicator').style.display = 'block';
-            document.getElementById('comment-input').focus();
-        }
-
-        function sendComment() {
-            const input = document.getElementById('comment-input');
-            if(input.value.trim()) {
-                const container = document.getElementById('comments-container');
-                let prefix = replyingUser ? `<span style="color:var(--accent-color);">رد لـ @${replyingUser}:</span> ` : '';
-                container.innerHTML += `<div style="margin-bottom:8px;"><b>أنت:</b> ${prefix}${input.value.trim()}</div>`;
-                input.value = "";
-                replyingUser = "";
-                document.getElementById('reply-indicator').style.display = 'none';
-            }
         }
     </script>
 </body>
